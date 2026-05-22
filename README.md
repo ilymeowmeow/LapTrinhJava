@@ -1,1 +1,1 @@
-.
+# Hướng dẫn cài đặt môi trường, cách chạy dự án và giới thiệu chung

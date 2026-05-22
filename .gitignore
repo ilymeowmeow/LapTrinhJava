@@ -1,0 +1,18 @@
+# Python / AI Models
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+models/
+*.bin
+*.pt
+*.pth
+*.safetensors
+
+# Node.js / Web Frontend / Backend
+node_modules/
+.env
+
+# Các file rác hệ điều hành
+.DS_Store
+Thumbs.db

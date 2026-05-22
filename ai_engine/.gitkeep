@@ -1,0 +1,9 @@
+# [QUAN TRỌNG NHẤT] Chứa cốt lõi AI và phần nghiên cứu
+│   ├── data/               # Lưu trữ dữ liệu
+│   │   ├── raw_docs/       # Tài liệu môn học gốc (PDF, Word, TXT...)
+│   │   └── processed/      # Dữ liệu đã xử lý (Text chunks cho RAG, file JSONL cho Fine-tuning...)
+│   ├── notebooks/          # Các file Jupyter Notebook (.ipynb) để tiền xử lý dữ liệu, thử nghiệm nhanh
+│   ├── rag_system/         # Code xây dựng RAG (Embeddings, Vector Database, Retrieval logic...)
+│   ├── fine_tuning/        # Code/Script để huấn luyện mô hình (Chuẩn bị prompt, training scripts như LoRA/QLoRA...)
+│   ├── evaluation/         # Script đánh giá và so sánh hiệu năng (Tính toán BLEU, ROUGE, tốc độ sinh từ, độ chính xác...)
+│   └── models/             # Thư mục lưu trữ weights của các mô hình (Nên thêm thư mục này vào .gitignore để không đẩy file quá nặng lên Git)
