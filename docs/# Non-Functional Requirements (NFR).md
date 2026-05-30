@@ -158,6 +158,6 @@
   - Độ liên quan ngữ cảnh (Context relevance)
 - Có thể đánh giá bằng:
   - Manual (con người)
-  - RAGAS (nâng cao)
+  - RAGAS (nâng cao) 
 
 ---
