@@ -17,14 +17,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final VectorStore vectorStore;
-    private final ChatModel chatModel; // Spring AI LLM Model
+    private final ChatModel chatModel; // Spring AI LLM Model (Gemini for RAG)
+    private ChatModel fineTunedChatModel; // Manual instantiation for Groq/Llama 3
     private final ChatSessionRepository sessionRepository;
     private final ChatMessageRepository messageRepository;
+
+    @Value("${groq.api-key}")
+    private String groqApiKey;
+
+    @Value("${spring.groq.base-url:https://api.groq.com/openai}")
+    private String groqBaseUrl;
+
+    @Value("${spring.groq.model:llama-3.1-8b-instant}")
+    private String groqModel;
+
+    @PostConstruct
+    public void initGroqModel() {
+        try {
+            OpenAiApi api = new OpenAiApi(groqBaseUrl, groqApiKey);
+            this.fineTunedChatModel = new OpenAiChatModel(api, OpenAiChatOptions.builder().withModel(groqModel).build());
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to initialize Groq Llama 3 model: " + e.getMessage());
+        }
+    }
 
     private static final String RAG_PROMPT_TEMPLATE = """
             Bạn là một trợ lý ảo giáo dục thông minh. Bạn chỉ được phép trả lời các câu hỏi dựa trên các tài liệu tham khảo được cung cấp bên dưới.
@@ -50,7 +76,10 @@ public class ChatService {
 
     public String askQuestion(Long sessionId, String question, String mode) {
         ChatSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseGet(() -> {
+                    ChatSession newSession = ChatSession.builder().title("Auto-created Session").build();
+                    return sessionRepository.save(newSession);
+                });
         
         messageRepository.save(ChatMessage.builder()
                 .session(session)
@@ -84,10 +113,14 @@ public class ChatService {
 
         String answer;
         try {
-            answer = chatModel.call(prompt).getResult().getOutput().getContent();
+            if ("Fine-tuning Mode".equalsIgnoreCase(mode) && fineTunedChatModel != null) {
+                answer = fineTunedChatModel.call(prompt).getResult().getOutput().getContent();
+            } else {
+                answer = chatModel.call(prompt).getResult().getOutput().getContent();
+            }
         } catch (Exception e) {
             System.err.println("Error calling LLM (possibly missing API Key): " + e.getMessage());
-            answer = "Hệ thống đang hoạt động ở chế độ Demo (" + mode + "): Đây là câu trả lời được sinh tự động do thiếu API Key.";
+            answer = "Hệ thống đang hoạt động ở chế độ Demo (" + mode + "): Đây là câu trả lời được sinh tự động do thiếu API Key hoặc lỗi kết nối LLM.";
         }
 
         messageRepository.save(ChatMessage.builder()

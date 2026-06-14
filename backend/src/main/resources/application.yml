@@ -18,14 +18,20 @@ spring:
 
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:your_api_key_here}
+      api-key: ${OPENAI_API_KEY:YOUR_GEMINI_API_KEY}
       base-url: https://generativelanguage.googleapis.com/v1beta/openai/
       chat:
         options:
-          model: gemini-1.5-flash
+          model: gemini-robotics-er-1.6-preview
       embedding:
         options:
-          model: text-embedding-004
+          model: gemini-embedding-2
+
+  # Custom properties for Fine-Tuned Local/Groq Llama 3
+  groq:
+    api-key: ${GROQ_API_KEY:YOUR_GROQ_API_KEY}
+    base-url: https://api.groq.com/openai
+    model: llama-3.1-8b-instant
 
     vectorstore:
       pgvector:

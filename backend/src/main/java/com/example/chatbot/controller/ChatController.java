@@ -46,4 +46,24 @@ public class ChatController {
         String answer = chatService.askQuestion(sessionId, question, mode);
         return ResponseEntity.ok(Map.of("answer", answer));
     }
+
+    @PostMapping("")
+    public ResponseEntity<Map<String, String>> askQuestionGeneric(@RequestBody Map<String, String> payload) {
+        ChatSession session = chatSessionRepository.findById(1L).orElseGet(() -> {
+            ChatSession newSession = ChatSession.builder().title("Default Session").build();
+            return chatSessionRepository.save(newSession);
+        });
+        
+        String question = payload.get("query"); // Matches frontend "query"
+        String mode = payload.getOrDefault("mode", "rag"); // Matches frontend "rag" or "finetune"
+        
+        if (question == null || question.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        String mappedMode = "finetune".equalsIgnoreCase(mode) ? "Fine-tuning Mode" : "RAG Mode";
+        String answer = chatService.askQuestion(session.getId(), question, mappedMode);
+        
+        return ResponseEntity.ok(Map.of("answer", answer));
+    }
 }
