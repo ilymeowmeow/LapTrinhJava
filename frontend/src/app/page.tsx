@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 
@@ -11,6 +11,57 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [selectedModel, setSelectedModel] = useState("RAG Mode");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSubject, setUploadSubject] = useState("Nhập môn AI");
+  const [uploadChapter, setUploadChapter] = useState("Chương 1");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (activeView === "documents") {
+      fetchDocuments();
+    }
+  }, [activeView]);
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/documents");
+      const data = await res.json();
+      setDocuments(data);
+    } catch (e) {
+      console.error("Lỗi lấy danh sách tài liệu:", e);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("subject", uploadSubject);
+    formData.append("chapter", uploadChapter);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/documents/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        await fetchDocuments();
+        alert("Tải lên và xử lý tài liệu thành công!");
+      } else {
+        alert("Lỗi khi tải tài liệu!");
+      }
+    } catch (error) {
+      alert("Lỗi kết nối đến server!");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const { data: session, status } = useSession();
 
@@ -368,13 +419,71 @@ export default function Home() {
 
         {/* Existing Views adapted to clean style */}
         {activeView === "documents" && (
-          <div className="flex-1 overflow-y-auto pt-20 p-8 max-w-4xl mx-auto w-full">
+          <div className="flex-1 overflow-y-auto pt-20 p-8 max-w-5xl mx-auto w-full">
             <h2 className="text-2xl font-bold text-slate-800 mb-8">Quản lý Tài liệu</h2>
-            <div className="bg-[#FAFAFA] border-2 border-dashed border-slate-300 rounded-3xl p-16 text-center hover:bg-slate-50 transition-colors cursor-pointer">
-              <div className="w-16 h-16 bg-white shadow-sm text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            
+            {/* Upload Box */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-8 mb-8 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-800 mb-4">Upload Tài liệu mới</h3>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-2">Môn học</label>
+                  <input type="text" value={uploadSubject} onChange={e => setUploadSubject(e.target.value)} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#7C3AED]" placeholder="Nhập môn học..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-2">Chương</label>
+                  <input type="text" value={uploadChapter} onChange={e => setUploadChapter(e.target.value)} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#7C3AED]" placeholder="Nhập chương..." />
+                </div>
               </div>
-              <p className="text-slate-700 font-semibold mb-2">Tải tài liệu PDF, DOCX</p>
+              <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.docx,.pptx,.txt" />
+              <div onClick={() => fileInputRef.current?.click()} className={`bg-[#FAFAFA] border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center transition-colors cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : 'hover:bg-slate-50'}`}>
+                <div className="w-12 h-12 bg-white shadow-sm text-slate-400 rounded-xl flex items-center justify-center mx-auto mb-3 border border-slate-200">
+                  {isUploading ? (
+                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#7C3AED]"></div>
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  )}
+                </div>
+                <p className="text-slate-700 font-semibold mb-1">{isUploading ? 'Đang tải lên và xử lý Vector...' : 'Chọn tài liệu (PDF, DOCX, PPTX)'}</p>
+                <p className="text-slate-500 text-sm">Hệ thống sẽ tự động chunk và embed vào CSDL</p>
+              </div>
+            </div>
+
+            {/* List Box */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-800 mb-4">Tài liệu đã Index</h3>
+              {documents.length === 0 ? (
+                <p className="text-slate-500">Chưa có tài liệu nào.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-500 text-sm">
+                        <th className="py-3 font-medium">Tên File</th>
+                        <th className="py-3 font-medium">Môn học</th>
+                        <th className="py-3 font-medium">Chương</th>
+                        <th className="py-3 font-medium">Trạng thái</th>
+                        <th className="py-3 font-medium">Ngày tải lên</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {documents.map((doc, i) => (
+                        <tr key={i} className="border-b border-slate-100 last:border-0 text-slate-700 text-sm hover:bg-slate-50">
+                          <td className="py-3 font-medium">{doc.filename}</td>
+                          <td className="py-3">{doc.subject}</td>
+                          <td className="py-3">{doc.chapter}</td>
+                          <td className="py-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${doc.status === 'INDEXED' ? 'bg-green-100 text-green-700' : doc.status === 'FAILED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                              {doc.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-slate-500">{new Date(doc.uploadDate).toLocaleString('vi-VN')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
