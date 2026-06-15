@@ -33,7 +33,7 @@ public class ChatService {
     private final ChatSessionRepository sessionRepository;
     private final ChatMessageRepository messageRepository;
 
-    @Value("${groq.api-key}")
+    @Value("${spring.groq.api-key}")
     private String groqApiKey;
 
     @Value("${spring.groq.base-url:https://api.groq.com/openai}")

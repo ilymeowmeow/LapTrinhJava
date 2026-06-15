@@ -70,6 +70,7 @@ public class DocumentService {
 
             return docMeta;
         } catch (Exception e) {
+            e.printStackTrace();
             docMeta.setStatus("FAILED");
             repository.save(docMeta);
             throw new RuntimeException("Failed to process document", e);
