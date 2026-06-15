@@ -19,6 +19,9 @@ export default function Home() {
   const [uploadChapter, setUploadChapter] = useState("Chương 1");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isChatUploading, setIsChatUploading] = useState(false);
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (activeView === "documents") {
       fetchDocuments();
@@ -61,6 +64,35 @@ export default function Home() {
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleChatFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsChatUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("subject", file.name); // Sử dụng tên file làm subject
+    formData.append("chapter", "Chat Upload");
+
+    try {
+      const res = await fetch("http://localhost:8080/api/documents/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        setChatSubjectFilter(file.name);
+        alert("Đã đính kèm tài liệu thành công!");
+      } else {
+        alert("Lỗi khi đính kèm tài liệu!");
+      }
+    } catch (error) {
+      alert("Lỗi kết nối đến server!");
+    } finally {
+      setIsChatUploading(false);
+      if (chatFileInputRef.current) chatFileInputRef.current.value = "";
     }
   };
 
@@ -240,6 +272,13 @@ export default function Home() {
 
         {activeView === "chat" && (
           <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto w-full relative">
+            <input 
+              type="file" 
+              ref={chatFileInputRef} 
+              onChange={handleChatFileUpload} 
+              className="hidden" 
+              accept=".pdf,.docx,.pptx,.txt" 
+            />
             {messages.length === 0 ? (
               // Empty State
               <div className="flex-1 flex flex-col items-center justify-center w-full max-w-3xl px-6">
@@ -264,8 +303,17 @@ export default function Home() {
                 )}
                 <div className="w-full relative bg-white shadow-lg shadow-slate-200/50 rounded-3xl border border-slate-200/80 p-1 transition-all focus-within:border-[#7C3AED]/30">
                   <div className="flex items-end px-4 py-3 gap-3">
-                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    <button 
+                      onClick={() => chatFileInputRef.current?.click()}
+                      disabled={isChatUploading}
+                      className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                      title="Đính kèm tài liệu"
+                    >
+                      {isChatUploading ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-slate-500"></div>
+                      ) : (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                      )}
                     </button>
                     <textarea 
                       value={inputValue}
@@ -374,8 +422,17 @@ export default function Home() {
                     )}
                     <div className="w-full relative bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.03)] rounded-3xl border border-slate-200/80 p-1">
                       <div className="flex items-end px-3 py-2 gap-3">
-                        <button className="p-2.5 text-slate-400 hover:text-slate-600 transition-colors">
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        <button 
+                          onClick={() => chatFileInputRef.current?.click()}
+                          disabled={isChatUploading}
+                          className="p-2.5 text-slate-400 hover:text-slate-600 transition-colors"
+                          title="Đính kèm tài liệu"
+                        >
+                          {isChatUploading ? (
+                            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-slate-500"></div>
+                          ) : (
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                          )}
                         </button>
                         <textarea 
                           value={inputValue}
