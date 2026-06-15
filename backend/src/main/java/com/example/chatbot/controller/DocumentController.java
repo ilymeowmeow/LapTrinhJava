@@ -36,4 +36,14 @@ public class DocumentController {
     public ResponseEntity<List<CourseDocument>> getAllDocuments() {
         return ResponseEntity.ok(documentService.getAllDocuments());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocument(@PathVariable Long id) {
+        try {
+            documentService.deleteDocument(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
