@@ -1,28 +1,32 @@
 package com.example.chatbot.controller;
 
-import com.example.chatbot.service.finetune.LocalFineTuneOrchestrator;
-import lombok.RequiredArgsConstructor;
+import com.example.chatbot.dto.FineTuningRequest;
+import com.example.chatbot.service.FineTuningService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/finetune")
-@RequiredArgsConstructor
+@RequestMapping("/api/finetuning")
 @CrossOrigin(origins = "*")
 public class FineTuningController {
 
-    private final LocalFineTuneOrchestrator orchestrator;
+    private final FineTuningService fineTuningService;
 
-    @PostMapping("/start")
-    public ResponseEntity<?> startFineTuning() {
-        String msg = orchestrator.startFineTuning();
-        return ResponseEntity.ok(Map.of("message", msg));
+    public FineTuningController(FineTuningService fineTuningService) {
+        this.fineTuningService = fineTuningService;
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<?> getStatus() {
-        return ResponseEntity.ok(Map.of("status", orchestrator.getStatus()));
+    @PostMapping("/generate-script")
+    public ResponseEntity<Map<String, String>> generateScript(@RequestBody FineTuningRequest request) {
+        String script = fineTuningService.generatePythonScript(
+                request.getModelName(),
+                request.getLoraR(),
+                request.getLoraAlpha(),
+                request.getEpochs(),
+                request.getDatasetName()
+        );
+        return ResponseEntity.ok(Map.of("script", script));
     }
 }

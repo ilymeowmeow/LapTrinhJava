@@ -39,12 +39,13 @@ public class ChatController {
         String question = payload.get("question");
         String mode = payload.getOrDefault("mode", "RAG Mode");
         String subject = payload.get("subject");
+        String localEndpoint = payload.get("localModelEndpoint");
         
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         
-        String answer = chatService.askQuestion(sessionId, question, mode, subject);
+        String answer = chatService.askQuestion(sessionId, question, mode, subject, localEndpoint);
         return ResponseEntity.ok(Map.of("answer", answer));
     }
 
@@ -64,7 +65,8 @@ public class ChatController {
         }
         
         String mappedMode = "finetune".equalsIgnoreCase(mode) ? "Fine-tuning Mode" : "RAG Mode";
-        String answer = chatService.askQuestion(session.getId(), question, mappedMode, subject);
+        String localEndpoint = payload.get("localModelEndpoint");
+        String answer = chatService.askQuestion(session.getId(), question, mappedMode, subject, localEndpoint);
         
         return ResponseEntity.ok(Map.of("answer", answer));
     }
