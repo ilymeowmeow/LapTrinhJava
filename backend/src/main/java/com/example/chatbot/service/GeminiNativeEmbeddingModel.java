@@ -47,6 +47,12 @@ public class GeminiNativeEmbeddingModel implements EmbeddingModel {
             for (int i = 0; i < values.size(); i++) {
                 floatValues[i] = values.get(i).floatValue();
             }
+            
+            // Truncate to 768 dimensions to match vector_store and HNSW limits
+            if (floatValues.length > 768) {
+                floatValues = java.util.Arrays.copyOf(floatValues, 768);
+            }
+            
             return floatValues;
         } catch (Exception e) {
             System.err.println("Gemini Embedding API Error (Using mock embedding): " + e.getMessage());

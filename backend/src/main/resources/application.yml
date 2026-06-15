@@ -15,7 +15,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -29,20 +29,19 @@ spring:
         options:
           model: gemini-robotics-er-1.6-preview
       embedding:
-        options:
-          model: gemini-embedding-2
+        enabled: false
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 768
+        initialize-schema: true
 
   # Custom properties for Fine-Tuned Local/Groq Llama 3
   groq:
     api-key: ${GROQ_API_KEY:YOUR_GROQ_API_KEY}
     base-url: https://api.groq.com/openai
     model: llama-3.1-8b-instant
-
-    vectorstore:
-      pgvector:
-        index-type: HNSW
-        distance-type: COSINE_DISTANCE
-        dimensions: 768
 
 server:
   port: 8080
