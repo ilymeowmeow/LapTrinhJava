@@ -21,9 +21,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import jakarta.annotation.PostConstruct;
 
@@ -33,29 +30,9 @@ public class ChatService {
 
     private final VectorStore vectorStore;
     private final ChatModel chatModel; // Spring AI LLM Model (Gemini for RAG)
-    private ChatModel fineTunedChatModel; // Manual instantiation for Groq/Llama 3
     private final ChatSessionRepository sessionRepository;
     private final ChatMessageRepository messageRepository;
     private final RestTemplate restTemplate = new RestTemplate();
-
-    @Value("${spring.groq.api-key}")
-    private String groqApiKey;
-
-    @Value("${spring.groq.base-url:https://api.groq.com/openai}")
-    private String groqBaseUrl;
-
-    @Value("${spring.groq.model:llama-3.1-8b-instant}")
-    private String groqModel;
-
-    @PostConstruct
-    public void initGroqModel() {
-        try {
-            OpenAiApi api = new OpenAiApi(groqBaseUrl, groqApiKey);
-            this.fineTunedChatModel = new OpenAiChatModel(api, OpenAiChatOptions.builder().withModel(groqModel).build());
-        } catch (Exception e) {
-            System.err.println("Warning: Failed to initialize Groq Llama 3 model: " + e.getMessage());
-        }
-    }
 
     private static final String RAG_PROMPT_TEMPLATE = """
             Bạn là một trợ lý ảo giáo dục thông minh. Bạn chỉ được phép trả lời các câu hỏi dựa trên các tài liệu tham khảo được cung cấp bên dưới.
