@@ -13,7 +13,7 @@ export default function Home() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [chatSubjectFilter, setChatSubjectFilter] = useState("");
 
-  const [ftModelName, setFtModelName] = useState("vinai/PhoGPT-4B-Chat");
+  const [ftModelName, setFtModelName] = useState("Qwen/Qwen2-1.5B-Instruct");
   const [ftDatasetName, setFtDatasetName] = useState("data/training_data.jsonl");
   const [ftLoraR, setFtLoraR] = useState(16);
   const [ftLoraAlpha, setFtLoraAlpha] = useState(32);
