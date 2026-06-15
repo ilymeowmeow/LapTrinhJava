@@ -11,6 +11,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [selectedModel, setSelectedModel] = useState("RAG Mode");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [chatSubjectFilter, setChatSubjectFilter] = useState("");
 
   const [documents, setDocuments] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -81,7 +82,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           question: currentInput,
-          mode: currentMode
+          mode: currentMode,
+          subject: chatSubjectFilter
         }),
       });
       
@@ -246,6 +248,20 @@ export default function Home() {
                 </h1>
                 
                 {/* Input Area */}
+                {chatSubjectFilter && (
+                  <div className="w-full max-w-3xl mb-3 flex justify-start">
+                    <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-medium">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                      Lọc theo môn: {chatSubjectFilter}
+                      <button 
+                        onClick={() => setChatSubjectFilter("")}
+                        className="ml-1 hover:bg-indigo-200 p-0.5 rounded-full transition-colors"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="w-full relative bg-white shadow-lg shadow-slate-200/50 rounded-3xl border border-slate-200/80 p-1 transition-all focus-within:border-[#7C3AED]/30">
                   <div className="flex items-end px-4 py-3 gap-3">
                     <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -342,6 +358,20 @@ export default function Home() {
                 {/* Fixed Input at Bottom */}
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white via-white to-transparent pt-10 pb-8">
                   <div className="max-w-3xl mx-auto px-6 w-full">
+                    {chatSubjectFilter && (
+                      <div className="w-full mb-3 flex justify-start">
+                        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-medium shadow-sm">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                          Lọc theo môn: {chatSubjectFilter}
+                          <button 
+                            onClick={() => setChatSubjectFilter("")}
+                            className="ml-1 hover:bg-indigo-200 p-0.5 rounded-full transition-colors"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="w-full relative bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.03)] rounded-3xl border border-slate-200/80 p-1">
                       <div className="flex items-end px-3 py-2 gap-3">
                         <button className="p-2.5 text-slate-400 hover:text-slate-600 transition-colors">
@@ -464,6 +494,7 @@ export default function Home() {
                         <th className="py-3 font-medium">Chương</th>
                         <th className="py-3 font-medium">Trạng thái</th>
                         <th className="py-3 font-medium">Ngày tải lên</th>
+                        <th className="py-3 font-medium text-right">Hành động</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -478,6 +509,20 @@ export default function Home() {
                             </span>
                           </td>
                           <td className="py-3 text-slate-500">{new Date(doc.uploadDate).toLocaleString('vi-VN')}</td>
+                          <td className="py-3 text-right">
+                            {doc.status === 'INDEXED' && (
+                              <button 
+                                onClick={() => {
+                                  setChatSubjectFilter(doc.subject);
+                                  setActiveView("chat");
+                                }}
+                                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-sm font-medium transition-colors"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                Hỏi đáp
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

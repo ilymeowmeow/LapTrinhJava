@@ -38,12 +38,13 @@ public class ChatController {
     public ResponseEntity<Map<String, String>> askQuestion(@PathVariable Long sessionId, @RequestBody Map<String, String> payload) {
         String question = payload.get("question");
         String mode = payload.getOrDefault("mode", "RAG Mode");
+        String subject = payload.get("subject");
         
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         
-        String answer = chatService.askQuestion(sessionId, question, mode);
+        String answer = chatService.askQuestion(sessionId, question, mode, subject);
         return ResponseEntity.ok(Map.of("answer", answer));
     }
 
@@ -56,13 +57,14 @@ public class ChatController {
         
         String question = payload.get("query"); // Matches frontend "query"
         String mode = payload.getOrDefault("mode", "rag"); // Matches frontend "rag" or "finetune"
+        String subject = payload.get("subject");
         
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         
         String mappedMode = "finetune".equalsIgnoreCase(mode) ? "Fine-tuning Mode" : "RAG Mode";
-        String answer = chatService.askQuestion(session.getId(), question, mappedMode);
+        String answer = chatService.askQuestion(session.getId(), question, mappedMode, subject);
         
         return ResponseEntity.ok(Map.of("answer", answer));
     }

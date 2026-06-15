@@ -74,7 +74,7 @@ public class ChatService {
             {question}
             """;
 
-    public String askQuestion(Long sessionId, String question, String mode) {
+    public String askQuestion(Long sessionId, String question, String mode, String subject) {
         ChatSession session = sessionRepository.findById(sessionId)
                 .orElseGet(() -> {
                     ChatSession newSession = ChatSession.builder().title("Auto-created Session").build();
@@ -95,16 +95,18 @@ public class ChatService {
             // Default to RAG Mode
             List<Document> similarDocuments;
             try {
-                similarDocuments = vectorStore.similaritySearch(
-                        SearchRequest.query(question).withTopK(5)
-                );
+                SearchRequest searchRequest = SearchRequest.query(question).withTopK(5);
+                if (subject != null && !subject.trim().isEmpty()) {
+                    searchRequest = searchRequest.withFilterExpression("subject == '" + subject + "'");
+                }
+                similarDocuments = vectorStore.similaritySearch(searchRequest);
             } catch (Exception e) {
                 similarDocuments = List.of();
                 System.err.println("Vector DB not ready: " + e.getMessage());
             }
 
             String context = similarDocuments.stream()
-                    .map(doc -> "Nội dung: " + doc.getContent() + " \n [Nguồn: " + doc.getMetadata().getOrDefault("sourceDocumentId", "Unknown") + "]")
+                    .map(doc -> "Nội dung: " + doc.getContent() + " \n [Nguồn: " + doc.getMetadata().getOrDefault("filename", "Unknown") + "]")
                     .collect(Collectors.joining("\n\n"));
 
             PromptTemplate promptTemplate = new PromptTemplate(RAG_PROMPT_TEMPLATE);
