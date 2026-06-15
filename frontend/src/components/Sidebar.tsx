@@ -9,7 +9,7 @@ export default function Sidebar() {
         </div>
         <div>
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-            RAG Edu
+            Chatbot AI Education
           </h1>
           <p className="text-xs text-slate-500 font-medium">Hệ thống Hỏi đáp</p>
         </div>

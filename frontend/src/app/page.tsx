@@ -113,7 +113,7 @@ export default function Home() {
           <div className="w-16 h-16 rounded-2xl bg-[#7C3AED] flex items-center justify-center text-white font-bold text-3xl mx-auto mb-6 shadow-sm">
             R
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Chào mừng đến RAG Edu</h1>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Chào mừng đến Chatbot AI Education</h1>
           <p className="text-slate-500 mb-8 font-medium">Hệ thống trợ lý AI học tập thông minh.</p>
           <button
             onClick={() => signIn("google")}
@@ -143,7 +143,7 @@ export default function Home() {
             R
           </div>
           <div>
-            <div className="font-bold text-xl text-[#7C3AED] tracking-tight leading-tight">RAG Edu</div>
+            <div className="font-bold text-xl text-[#7C3AED] tracking-tight leading-tight">Chatbot AI Education</div>
             <div className="text-sm text-slate-500 font-medium">Hệ thống Hỏi đáp</div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function Home() {
               // Empty State
               <div className="flex-1 flex flex-col items-center justify-center w-full max-w-3xl px-6">
                 <h1 className="text-3xl font-bold text-slate-800 mb-8 tracking-tight">
-                  Trợ lý Hỏi đáp RAG Edu
+                  Trợ lý Hỏi đáp Chatbot AI Education
                 </h1>
                 
                 {/* Input Area */}

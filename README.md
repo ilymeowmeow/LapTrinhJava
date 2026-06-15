@@ -1,4 +1,4 @@
-# Edu Chatbot AI 🤖📚
+# Chatbot AI Education 🤖📚
 
 Hệ thống Trợ lý Hỏi đáp thông minh dành cho giáo dục, hỗ trợ sinh viên với khả năng truy xuất tài liệu (RAG Mode) và sử dụng kiến thức nội tại của LLM (Fine-Tuning Mode).
 
