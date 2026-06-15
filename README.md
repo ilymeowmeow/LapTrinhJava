@@ -1,4 +1,4 @@
-# RAG Edu - Chatbot AI 🤖📚
+# Edu Chatbot AI 🤖📚
 
 Hệ thống Trợ lý Hỏi đáp thông minh dành cho giáo dục, hỗ trợ sinh viên với khả năng truy xuất tài liệu (RAG Mode) và sử dụng kiến thức nội tại của LLM (Fine-Tuning Mode).
 
@@ -75,4 +75,4 @@ Dự án sử dụng Gemini (Google) và Llama 3 (Groq). Bạn KHÔNG ĐƯỢC h
 ---
 
 ## 📝 Lưu ý quan trọng cho Developers & AI Agents
-Dự án này đã thiết lập file `.cursorrules` ở thư mục gốc. **Tuyệt đối không được xoá** và khi dùng AI để code tiếp, AI đó sẽ tự động tuân thủ các quy tắc bảo vệ cấu trúc này (VD: Không phá lớp tích hợp Native Gemini, không hard-code API Keys).
+Dự án này đã thiết lập file `.cursorrules` ở thư mục gốc. **Tuyệt đối không được xoá** và khi nếu dùng AI để coding, AI đó sẽ tự động tuân thủ các quy tắc bảo vệ cấu trúc này (VD: Không phá lớp tích hợp Native Gemini, không hard-code API Keys).
