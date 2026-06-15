@@ -225,16 +225,6 @@ export default function Home() {
             Chatbot Hỏi đáp
           </button>
 
-          <button 
-            onClick={() => setActiveView("research")} 
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-all ${
-              activeView === 'research' ? 'bg-white shadow-sm border border-slate-200/60 text-slate-800' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            Module Nghiên cứu
-          </button>
         </div>
 
         {/* User Info */}
@@ -606,18 +596,6 @@ export default function Home() {
           </div>
         )}
 
-        {activeView === "research" && (
-          <div className="flex-1 overflow-y-auto pt-20 p-8 max-w-5xl mx-auto w-full">
-            <h2 className="text-2xl font-bold text-slate-800 mb-8">Module Nghiên cứu</h2>
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Cấu hình Evaluate Model</h3>
-              <p className="text-slate-500 mb-6">Mô đun đánh giá mô hình LLM chuyên dụng bằng Java Backend.</p>
-              <button className="px-6 py-2.5 bg-[#7C3AED] text-white font-medium rounded-xl hover:bg-[#6d28d9] transition-colors">
-                Khởi chạy Benchmark
-              </button>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
