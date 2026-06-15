@@ -203,18 +203,6 @@ export default function Home() {
         {/* Unified Navigation Tabs */}
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
           <button 
-            onClick={() => setActiveView("dashboard")} 
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-all ${
-              activeView === 'dashboard' ? 'bg-white shadow-sm border border-slate-200/60 text-slate-800' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            Dashboard
-          </button>
-          
-          <button 
             onClick={() => setActiveView("documents")} 
             className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-all ${
               activeView === 'documents' ? 'bg-white shadow-sm border border-slate-200/60 text-slate-800' : 'text-slate-600 hover:bg-slate-100'
@@ -614,22 +602,6 @@ export default function Home() {
                   </table>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {activeView === "dashboard" && (
-          <div className="flex-1 overflow-y-auto pt-20 p-8 max-w-5xl mx-auto w-full">
-            <h2 className="text-2xl font-bold text-slate-800 mb-8">Tổng quan Dashboard</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-sm font-semibold text-slate-500 mb-2">Faithfulness</div>
-                <div className="text-4xl font-bold text-[#7C3AED]">0.89</div>
-              </div>
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-sm font-semibold text-slate-500 mb-2">Answer Relevancy</div>
-                <div className="text-4xl font-bold text-[#E14343]">0.92</div>
-              </div>
             </div>
           </div>
         )}
