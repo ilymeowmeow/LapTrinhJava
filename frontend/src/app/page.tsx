@@ -21,7 +21,7 @@ export default function Home() {
   const [generatedScript, setGeneratedScript] = useState("");
   const [localModelEndpoint, setLocalModelEndpoint] = useState("http://localhost:11434/api/generate");
 
-  const [documents, setDocuments] = useState<any[]>([]); 3421
+  const [documents, setDocuments] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSubject, setUploadSubject] = useState("Nhập môn AI");
   const [uploadChapter, setUploadChapter] = useState("Chương 1");
