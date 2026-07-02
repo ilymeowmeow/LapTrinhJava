@@ -8,6 +8,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeView, setActiveView] = useState("chat"); // dashboard, documents, chat, research
   const [messages, setMessages] = useState<{ role: string, content: string }[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<number>(1);
   const [inputValue, setInputValue] = useState("");
   const [selectedModel, setSelectedModel] = useState("RAG Mode");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Home() {
   const [ftLoraAlpha, setFtLoraAlpha] = useState(32);
   const [ftEpochs, setFtEpochs] = useState(3);
   const [generatedScript, setGeneratedScript] = useState("");
-  const [localModelEndpoint, setLocalModelEndpoint] = useState("http://localhost:11434/api/generate");
+  const [localModelEndpoint, setLocalModelEndpoint] = useState("http://localhost:8001/api/generate");
 
   const [documents, setDocuments] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,6 +36,24 @@ export default function Home() {
       fetchDocuments();
     }
   }, [activeView]);
+
+  useEffect(() => {
+    // Tự động tạo một session mới khi vào trang
+    const createInitialSession = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/chat/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "New Conversation" })
+        });
+        const data = await res.json();
+        if (data.id) setCurrentSessionId(data.id);
+      } catch (e) {
+        console.error("Lỗi tạo session:", e);
+      }
+    };
+    createInitialSession();
+  }, []);
 
   const fetchDocuments = async () => {
     try {
@@ -153,7 +172,7 @@ export default function Home() {
     setInputValue("");
 
     try {
-      const response = await fetch("http://localhost:8080/api/chat/ask/1", {
+      const response = await fetch(`http://localhost:8080/api/chat/ask/${currentSessionId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -303,6 +322,48 @@ export default function Home() {
             </svg>
           </button>
         </div>
+
+        {activeView === "chat" && (
+          <div className="absolute top-0 right-0 z-10 p-4">
+            <button
+              onClick={async () => {
+                if(messages.length > 0) {
+                  if(confirm('Bạn có chắc chắn muốn xóa sạch cuộc trò chuyện hiện tại khỏi Database? Dữ liệu sẽ bị xóa vĩnh viễn.')) {
+                    setMessages([]);
+                    try {
+                      // Xoá session cũ khỏi database
+                      if (currentSessionId) {
+                        await fetch(`http://localhost:8080/api/chat/session/${currentSessionId}`, {
+                          method: "DELETE"
+                        });
+                      }
+                      
+                      // Tạo session mới
+                      const res = await fetch("http://localhost:8080/api/chat/session", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title: "New Conversation" })
+                      });
+                      const data = await res.json();
+                      if (data.id) setCurrentSessionId(data.id);
+                    } catch (e) {
+                      console.error("Lỗi xóa/tạo session mới:", e);
+                    }
+                  }
+                }
+              }}
+              className={`flex items-center gap-2 px-4 py-2 bg-white shadow-sm border rounded-lg text-sm font-medium transition-colors ${
+                messages.length > 0 
+                  ? 'border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600'
+                  : 'border-slate-100 text-slate-300 cursor-not-allowed'
+              }`}
+              disabled={messages.length === 0}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Cuộc trò chuyện mới
+            </button>
+          </div>
+        )}
 
         {activeView === "chat" && (
           <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto w-full relative">
@@ -668,7 +729,7 @@ export default function Home() {
                   <div className="pt-2">
                     <button onClick={handleGenerateScript} className="w-full py-3 bg-[#7C3AED] text-white font-medium rounded-xl hover:bg-[#6d28d9] transition-colors flex items-center justify-center gap-2">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                      Tạo Python Script (Colab)
+                      Tạo Python Script (Huấn luyện Local)
                     </button>
                   </div>
                 </div>
@@ -677,11 +738,11 @@ export default function Home() {
               {/* Local Model Endpoint Config */}
               <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-800 mb-4">Tích hợp Local Model</h3>
-                <p className="text-sm text-slate-500 mb-4">Sau khi Fine-tune trên Colab/GPU, bạn có thể tải Weights về máy và chạy thông qua Ollama hoặc vLLM. Khai báo API Endpoint tại đây để Chatbot gọi đến khi bật "Fine-tune Mode".</p>
+                <p className="text-sm text-slate-500 mb-4">Sau khi hoàn tất Fine-tune bằng file start_training.bat, khai báo API Endpoint tại đây để Chatbot kết nối vào "bộ não" mới khi bật "Fine-tune Mode".</p>
                 <div>
                   <label className="block text-sm font-medium text-slate-600 mb-2">Local Model Endpoint (REST API)</label>
-                  <input type="text" value={localModelEndpoint} onChange={e => setLocalModelEndpoint(e.target.value)} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#7C3AED] mb-2" placeholder="http://localhost:11434/api/generate" />
-                  <p className="text-xs text-slate-400">Ví dụ: http://localhost:11434/api/generate (Ollama Llama 3)</p>
+                  <input type="text" value={localModelEndpoint} onChange={e => setLocalModelEndpoint(e.target.value)} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#7C3AED] mb-2" placeholder="http://localhost:8001/api/generate" />
+                  <p className="text-xs text-slate-400">Ví dụ: http://localhost:8001/api/generate (Local Qwen Model)</p>
                 </div>
               </div>
             </div>

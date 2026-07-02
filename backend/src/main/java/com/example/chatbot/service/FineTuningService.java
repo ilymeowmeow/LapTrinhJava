@@ -10,8 +10,8 @@ public class FineTuningService {
 import torch
 from datasets import load_dataset
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
-from trl import SFTTrainer
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, BitsAndBytesConfig
+from trl import SFTTrainer, SFTConfig
 
 # Cấu hình Model & Tokenizer
 model_name = "%s"
@@ -21,9 +21,15 @@ print(f"Loading model: {model_name}")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16
+)
+
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    load_in_4bit=True,
+    quantization_config=bnb_config,
     device_map="auto"
 )
 model = prepare_model_for_kbit_training(model)
@@ -43,7 +49,7 @@ model = get_peft_model(model, lora_config)
 dataset = load_dataset("json", data_files={"train": dataset_name})
 
 # Cấu hình Training
-training_args = TrainingArguments(
+training_args = SFTConfig(
     output_dir="./results",
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
@@ -51,14 +57,14 @@ training_args = TrainingArguments(
     num_train_epochs=%d,
     logging_steps=10,
     optim="paged_adamw_8bit",
-    save_strategy="epoch"
+    save_strategy="epoch",
+    dataset_text_field="text",
+    max_length=512
 )
 
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset["train"],
-    dataset_text_field="text",
-    max_seq_length=512,
     args=training_args
 )
 

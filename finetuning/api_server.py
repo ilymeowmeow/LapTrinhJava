@@ -62,9 +62,8 @@ async def generate(request: GenerateRequest):
         generated_ids = model.generate(
             **model_inputs,
             max_new_tokens=512,
-            do_sample=True,
-            temperature=0.7,
-            top_p=0.9
+            do_sample=False,
+            repetition_penalty=1.1
         )
         
         generated_ids = [

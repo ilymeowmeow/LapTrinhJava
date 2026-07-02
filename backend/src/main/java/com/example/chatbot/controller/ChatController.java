@@ -34,6 +34,12 @@ public class ChatController {
         return ResponseEntity.ok(chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId));
     }
 
+    @DeleteMapping("/session/{sessionId}")
+    public ResponseEntity<Void> deleteSession(@PathVariable Long sessionId) {
+        chatSessionRepository.deleteById(sessionId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/ask/{sessionId}")
     public ResponseEntity<Map<String, String>> askQuestion(@PathVariable Long sessionId, @RequestBody Map<String, String> payload) {
         String question = payload.get("question");

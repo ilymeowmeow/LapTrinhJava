@@ -1,7 +1,7 @@
 import json
 import os
 
-input_file = r"C:\UTH\chat test AI\ai_eval_questions.md"
+input_file = r"C:\UTH\Chatbot AI\finetuning\data\raw_data.md"
 output_file = r"C:\UTH\Chatbot AI\finetuning\data\training_data.jsonl"
 
 with open(input_file, "r", encoding="utf-8") as f:

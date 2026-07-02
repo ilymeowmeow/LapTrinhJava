@@ -28,14 +28,15 @@ public class GeminiNativeEmbeddingModel implements EmbeddingModel {
 
     @Override
     public float[] embed(String text) {
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key=" + apiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=" + apiKey;
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         
         Map<String, Object> body = Map.of(
-            "model", "models/gemini-embedding-2",
-            "content", Map.of("parts", List.of(Map.of("text", text)))
+            "model", "models/text-embedding-004",
+            "content", Map.of("parts", List.of(Map.of("text", text))),
+            "outputDimensionality", 768
         );
         
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
@@ -46,11 +47,6 @@ public class GeminiNativeEmbeddingModel implements EmbeddingModel {
             float[] floatValues = new float[values.size()];
             for (int i = 0; i < values.size(); i++) {
                 floatValues[i] = values.get(i).floatValue();
-            }
-            
-            // Truncate to 768 dimensions to match vector_store and HNSW limits
-            if (floatValues.length > 768) {
-                floatValues = java.util.Arrays.copyOf(floatValues, 768);
             }
             
             return floatValues;
