@@ -16,19 +16,20 @@
 | Cơ sở dữ liệu | PostgreSQL và PGVector |
 | Repository | <https://github.com/ilymeowmeow/LapTrinhJava> |
 | Giảng viên hướng dẫn | Nguyễn Văn Chiến |
-| Mã đồ án | 012012213605 |
-| Học kỳ/Năm học | 2/2026 |
+| Nguồn đề tài | Do giảng viên hướng dẫn lựa chọn và phân công cho nhóm |
+| Mã đồ án | _Nhóm bổ sung_ |
+| Học kỳ/Năm học | _Nhóm bổ sung_ |
 
 ## THÀNH VIÊN NHÓM
 
 | Họ và tên | Vai trò | Email | Mã số sinh viên | Contribution rate (100%) |
 |---|---|---|---|---:|
 | Nguyễn Văn Chiến | Supervisor | <chiennv@ut.edu.vn> | None |  |
-| Đỗ Thiên Phúc | Leader | <phucdt0164@ut.edu.vn> | 068206000164 |  |
-| Huỳnh Lê Bảo Trâm | Member | <nonamemiurin@gmail.com> | 064306011123 |  |
-| Huỳnh Thành Phát | Member | <phatht5156@ut.edu.vn> | 093206005156 |  |
-| Hà Hữu Tường | Member | <tuonghh2477@ut.edu.vn> | 068206002477 |  |
-| Dương Đình Khôi | Member | <khoidd1318@ut.edu.vn> | 096206001318 |  |
+| Đỗ Thiên Phúc | Backend Engineer 1 | <phucdt0164@ut.edu.vn> | 068206000164 |  |
+| Huỳnh Lê Bảo Trâm | Frontend Engineer 2 | <nonamemiurin@gmail.com> | 064306011123 |  |
+| Huỳnh Thành Phát | AI/Backend Lead | <phatht5156@ut.edu.vn> | 093206005156 |  |
+| Hà Hữu Tường | Backend Engineer 2 | <tuonghh2477@ut.edu.vn> | 068206002477 |  |
+| Dương Đình Khôi | Frontend Engineer 1 | <khoidd1318@ut.edu.vn> | 096206001318 |  |
 
 > Cột Contribution rate được để trống để nhóm thống nhất và bổ sung sau.
 
@@ -65,7 +66,9 @@ Kết quả cuối cùng cần trả lời liệu RAG hay Fine-tuning phù hợp
 
 # I. GIỚI THIỆU ĐỀ TÀI
 
-## 1.1. Bối cảnh và lý do chọn đề tài
+## 1.1. Bối cảnh và lý do thực hiện đề tài
+
+Đề tài được giảng viên hướng dẫn lựa chọn và phân công cho nhóm trong khuôn khổ học phần Lập trình Java. Nhóm không thực hiện bước tự đề xuất hoặc tự lựa chọn đề tài; nhiệm vụ của nhóm là phân tích yêu cầu, xây dựng sản phẩm và triển khai phần nghiên cứu theo phạm vi được giao.
 
 Sinh viên đại học thường phải tra cứu lượng lớn giáo trình, slide bài giảng, tài liệu thực hành và tài liệu tham khảo. Việc tìm đúng đoạn thông tin trong nhiều tài liệu mất thời gian, trong khi mô hình ngôn ngữ tổng quát có thể trả lời thiếu căn cứ hoặc tạo thông tin không có trong tài liệu môn học. Vì vậy, một chatbot có khả năng hỏi đáp dựa trên nguồn tài liệu xác định sẽ hỗ trợ quá trình tự học và giảm thời gian tra cứu.
 
@@ -241,7 +244,9 @@ Hệ thống áp dụng kiến trúc phân lớp:
 
 ## 4.3. Biểu đồ Lớp
 
-<!-- Nhóm sẽ cập nhật nội dung và hình Class Diagram sau. -->
+- **Draw.io**: [class diagram.drawio.png](./class%20diagram.drawio.png)
+
+![Biểu đồ Lớp](./class%20diagram.drawio.png)
 
 ## 4.4. Biểu đồ Quan hệ Thực thể (ERD)
 
@@ -267,93 +272,6 @@ Hệ thống áp dụng kiến trúc phân lớp:
 | 6 | A/B Benchmark: RAG và Fine-tuned | Đạt một phần; backend evaluation chưa xác minh |
 | 7 | Benchmark Chunking Strategies | Dự kiến / chưa xác minh end-to-end |
 | 8 | Benchmark Embedding Models | Dự kiến / chưa xác minh end-to-end |
-
-### 4.5.3. Mô tả chi tiết các sequence diagram
-
-#### a. Đăng nhập Google OAuth
-
-- **Mục đích:** xác thực người dùng trước khi truy cập web application mà không lưu mật khẩu Google trong hệ thống.
-- **Actor:** Sinh viên hoặc giảng viên.
-- **Thành phần tham gia:** trình duyệt, Next.js, NextAuth và Google OAuth Authorization Server.
-- **Thực thể/dữ liệu liên quan:** OAuth authorization code, access token, profile và session NextAuth. Source hiện tại chưa có entity người dùng riêng trong PostgreSQL.
-- **Luồng chính:** người dùng chọn đăng nhập; NextAuth chuyển hướng đến Google; Google xác thực và trả authorization code; NextAuth đổi code lấy token/profile, tạo session rồi chuyển về ứng dụng.
-- **Ngoại lệ:** Client ID/Secret sai, redirect URI không khớp, người dùng từ chối quyền hoặc email chưa thuộc test users. Hệ thống không tạo session và hiển thị lỗi.
-- **Yêu cầu liên quan:** FR-01, NFR-01.
-
-#### b. Upload, chunk, embed và index tài liệu
-
-- **Mục đích:** biến tài liệu môn học thành vector có thể truy xuất trong RAG.
-- **Actor:** Giảng viên hoặc người quản trị tài liệu.
-- **Thành phần tham gia:** Documents UI, `DocumentController`, `DocumentService`, Tika, `TokenTextSplitter`, `VectorStore`, embedding model và PostgreSQL/PGVector.
-- **Thực thể/dữ liệu liên quan:** `CourseDocument`, bảng `vector_store`; metadata gồm `doc_id`, `filename`, `subject`, `chapter`.
-- **Luồng chính:** frontend gửi file cùng môn/chương; backend lưu metadata với `PROCESSING`; Tika parse nội dung; splitter tạo chunks; embedding model sinh vector; PGVector lưu vector/metadata; trạng thái chuyển thành `INDEXED`.
-- **Ngoại lệ:** file rỗng/không hỗ trợ, parser lỗi, embedding API lỗi hoặc database không sẵn sàng. Backend cập nhật trạng thái `FAILED` và trả lỗi.
-- **Yêu cầu liên quan:** FR-02, FR-03, NFR-03, NFR-05, NFR-06.
-
-#### c. Hỏi đáp bằng RAG
-
-- **Mục đích:** tạo câu trả lời có căn cứ trên tài liệu môn học.
-- **Actor:** Sinh viên.
-- **Thành phần tham gia:** Chat UI, `ChatController`, `ChatService`, `ChatMessageRepository`, PGVector và Gemini `ChatModel`.
-- **Thực thể/dữ liệu liên quan:** `ChatSession`, `ChatMessage`, các record `vector_store` và metadata nguồn.
-- **Luồng chính:** sinh viên gửi câu hỏi; backend tìm/tạo session và lưu USER message; PGVector trả top-k chunks; service ghép context vào prompt và gọi Gemini; BOT message được lưu rồi trả về frontend.
-- **Ngoại lệ:** không có context, vector database lỗi hoặc Gemini lỗi/quota. Hệ thống cần từ chối ngoài phạm vi hoặc trả lỗi rõ ràng, không tạo thông tin không có căn cứ.
-- **Hạn chế hiện tại:** lịch sử chưa được đưa vào prompt; controller chưa trả structured citations đầy đủ cho frontend.
-- **Yêu cầu liên quan:** FR-07, FR-08, FR-09, NFR-02, NFR-03, NFR-07.
-
-#### d. Quản lý phiên và lịch sử chat
-
-- **Mục đích:** tách từng cuộc hội thoại và cho phép xem lại tin nhắn theo thời gian.
-- **Actor:** Sinh viên.
-- **Thành phần tham gia:** Chat UI, `ChatController`, `ChatSessionRepository`, `ChatMessageRepository`, PostgreSQL.
-- **Thực thể/dữ liệu liên quan:** `ChatSession` quan hệ một-nhiều với `ChatMessage`; message chứa role, content và createdAt.
-- **Luồng chính:** tạo session để nhận ID; gắn USER/BOT message với session; truy vấn messages theo createdAt khi mở lại; xóa session và messages bằng cascade khi người dùng yêu cầu.
-- **Ngoại lệ:** session không tồn tại, ID không hợp lệ hoặc database lỗi. Backend cần trả response phù hợp và không trộn dữ liệu giữa các phiên.
-- **Hạn chế hiện tại:** endpoint generic `/api/chat` dùng session mặc định ID 1; `ddl-auto=create` có thể xóa lịch sử khi restart.
-- **Yêu cầu liên quan:** FR-06, NFR-03, NFR-06.
-
-#### e. Hỏi đáp bằng fine-tuned model local
-
-- **Mục đích:** sử dụng model đã fine-tune chạy local và tạo cơ sở so sánh với RAG.
-- **Actor:** Sinh viên hoặc nhà nghiên cứu.
-- **Thành phần tham gia:** Chat/Fine-tuning UI, `ChatController`, `ChatService`, `RestTemplate`, local model API và PostgreSQL.
-- **Thực thể/dữ liệu liên quan:** `ChatSession`, `ChatMessage`, endpoint URL, model name, prompt và model response.
-- **Luồng chính:** người dùng chọn Fine-tune; backend lưu USER message và gửi payload đến local model; nhận response; lưu BOT message; trả kết quả cho frontend.
-- **Ngoại lệ:** endpoint rỗng, server chưa chạy, payload không tương thích, timeout hoặc response thiếu trường kết quả. Backend trả thông báo cấu hình/kết nối.
-- **Yêu cầu liên quan:** FR-10, NFR-03, NFR-05.
-
-#### f. A/B Benchmark RAG và Fine-tuned model
-
-- **Mục đích:** chạy cùng câu hỏi qua hai pipeline và so sánh answer, citation và latency.
-- **Actor:** Nhà nghiên cứu hoặc thành viên nhóm.
-- **Thành phần tham gia dự kiến:** Research Dashboard, `EvaluationController`, evaluation service, RAG pipeline, Gemini, local fine-tuned API và metrics aggregator.
-- **Thực thể/dữ liệu liên quan:** question, ground truth, hai answers, retrieved contexts/sources, latency và evaluation scores. Chưa có experiment entity được xác minh trong source.
-- **Luồng chính dự kiến:** UI gửi câu hỏi và local endpoint; backend chạy hai nhánh; ghi latency; tính accuracy/hallucination; trả hai kết quả và metrics để dashboard vẽ biểu đồ.
-- **Ngoại lệ:** một model lỗi/timeout. Kết quả cần ghi lỗi riêng và không tự động coi request lỗi là điểm 0 nếu protocol không quy định.
-- **Trạng thái:** UI A/B đã có; endpoint `/api/evaluation/compare` và metrics backend chưa được xác minh end-to-end.
-- **Yêu cầu liên quan:** FR-11, FR-12, NFR-02, NFR-05, NFR-07.
-
-#### g. Benchmark Chunking Strategies
-
-- **Mục đích:** xác định chunking strategy có retrieval accuracy tốt nhất trên cùng corpus và test set.
-- **Actor:** Nhà nghiên cứu.
-- **Thành phần tham gia dự kiến:** Chunking tab, benchmark runner, fixed-size/semantic/hierarchical chunker, embedding model cố định, vector index và retrieval evaluator.
-- **Thực thể/dữ liệu liên quan:** corpus version, strategy/config, chunks, questions, evidence, ranked results, Hit@k, MRR và nDCG@k; kết quả nên lưu CSV/JSON hoặc experiment run.
-- **Luồng chính dự kiến:** chunk cùng corpus bằng từng strategy; embed bằng cùng model; index; retrieve top-k; đối chiếu evidence; tổng hợp metrics và chọn strategy tốt nhất.
-- **Ngoại lệ:** chunk rỗng, số chunks quá lớn, embedding lỗi hoặc evidence chưa gán nhãn. Runner phải lưu lỗi và cấu hình.
-- **Trạng thái:** các class strategy đã xuất hiện nhưng chưa nối vào pipeline benchmark; giao diện demo chưa được xác minh trong commit hiện tại.
-- **Yêu cầu liên quan:** FR-12, NFR-02, NFR-05, NFR-07; phục vụ RQ phụ 1.
-
-#### h. Benchmark Embedding Models
-
-- **Mục đích:** chọn embedding model phù hợp nhất với tài liệu kỹ thuật tiếng Việt khi giữ nguyên chunking strategy.
-- **Actor:** Nhà nghiên cứu.
-- **Thành phần tham gia dự kiến:** Embedding tab, benchmark runner, adapter E5/PhoBERT/BGE-M3/OpenAI, vector index và retrieval evaluator.
-- **Thực thể/dữ liệu liên quan:** model/version, vector dimension, chunking config, corpus version, question/evidence, ranked results, retrieval metrics, latency và chi phí; mỗi run cần ID/timestamp.
-- **Luồng chính dự kiến:** lần lượt embed cùng corpus/questions; tạo index; retrieve top-k; tính Hit@k/MRR/nDCG@k; ghi latency/chi phí; trả bảng so sánh.
-- **Ngoại lệ:** thiếu API credit, model không tải được, dimension không khớp hoặc PhoBERT chưa pooling/word segmentation phù hợp. Model lỗi phải đánh dấu `EXCLUDED/FAILED`, không điền số liệu giả.
-- **Trạng thái:** chưa xác minh runner, endpoint hoặc persistence cho embedding benchmark trong source Git hiện tại.
-- **Yêu cầu liên quan:** FR-12, NFR-02, NFR-05, NFR-07; phục vụ RQ phụ 2.
 
 ## 4.6. Thiết kế dữ liệu
 
@@ -638,13 +556,15 @@ Khởi động local API theo hướng dẫn của module fine-tuning, sau đó 
 
 ## 9.1. Phân công công việc
 
-| Thành viên | Hạng mục phụ trách | Deliverable/Commit | Trạng thái |
+> Role trong bảng dưới đây thể hiện hạng mục kỹ thuật phụ trách của từng thành viên, không phải chức danh hành chính trong nhóm. Trạng thái được cập nhật theo bảng tổng hợp công việc do nhóm cung cấp.
+
+| Hạng mục phụ trách (Role) | Thành viên | Công việc/Deliverable | Trạng thái |
 |---|---|---|---|
-| Đỗ Thiên Phúc |  |  |  |
-| Huỳnh Lê Bảo Trâm |  |  |  |
-| Huỳnh Thành Phát |  |  |  |
-| Hà Hữu Tường |  |  |  |
-| Dương Đình Khôi |  |  |  |
+| AI/Backend Lead | Huỳnh Thành Phát | `train_qwen.py`, `api_server.py` (Fine-tuning pipeline); `EmbeddingService.java`, `VectorStorageService.java` (Vector DB); `GeminiNativeClient.java` và prompt engineering; các chunking strategies trong `Chunking.java` | Hoàn thành |
+| Backend Engineer 1 | Đỗ Thiên Phúc | `ChatService.java`, `ChatController.java`; `ChatSession.java`, `ChatMessage.java`; `ChatMessageRepository.java`, `ChatSessionRepository.java`; `ChatRequest.java`, `ChatResponse.java` | Hoàn thành |
+| Backend Engineer 2 | Hà Hữu Tường | `DocumentService.java`, `DocumentController.java`; `DocumentParserService.java` (PDF/DOCX parsing); `CourseDocument.java`, `Chunking.java`; `FineTuningService.java`, `FineTuningController.java` | Hoàn thành |
+| Frontend Engineer 1 | Dương Đình Khôi | `app/chat/page.tsx` (chat interface); `app/page.tsx` (main dashboard); `Sidebar.tsx`, `SessionProviderWrapper.tsx`; message rendering và mode selector | Hoàn thành |
+| Frontend Engineer 2 | Huỳnh Lê Bảo Trâm | `app/documents/page.tsx` (upload, delete, list); `app/research/page.tsx` (evaluation dashboard); `globals.css` (styling); visualization và charts | Hoàn thành |
 
 ## 9.2. Quy tắc Git
 
