@@ -244,7 +244,7 @@ Hệ thống áp dụng kiến trúc phân lớp:
 
 ## 4.3. Biểu đồ Lớp
 
-- **Draw.io**: [class diagram.drawio.png](./class%20diagram.drawio.png)
+- **Draw.io**: [ClassDiagram.drawio](./ClassDiagram.drawio)
 
 ![Biểu đồ Lớp](./class%20diagram.drawio.png)
 
