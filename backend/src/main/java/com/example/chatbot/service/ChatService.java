@@ -16,15 +16,23 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final VectorStore vectorStore;
-    private final ChatModel chatModel; // Spring AI LLM Model
+    private final ChatModel chatModel; // Spring AI LLM Model (Gemini for RAG)
     private final ChatSessionRepository sessionRepository;
     private final ChatMessageRepository messageRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     private static final String RAG_PROMPT_TEMPLATE = """
             Bạn là một trợ lý ảo giáo dục thông minh. Bạn chỉ được phép trả lời các câu hỏi dựa trên các tài liệu tham khảo được cung cấp bên dưới.
@@ -48,9 +56,12 @@ public class ChatService {
             {question}
             """;
 
-    public String askQuestion(Long sessionId, String question, String mode) {
+    public String askQuestion(Long sessionId, String question, String mode, String subject, String localEndpoint) {
         ChatSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseGet(() -> {
+                    ChatSession newSession = ChatSession.builder().title("Auto-created Session").build();
+                    return sessionRepository.save(newSession);
+                });
         
         messageRepository.save(ChatMessage.builder()
                 .session(session)
@@ -58,36 +69,62 @@ public class ChatService {
                 .content(question)
                 .build());
 
-        Prompt prompt;
+        String answer = "";
+
         if ("Fine-tuning Mode".equalsIgnoreCase(mode)) {
-            PromptTemplate promptTemplate = new PromptTemplate(FINE_TUNE_PROMPT_TEMPLATE);
-            prompt = promptTemplate.create(Map.of("question", question));
+            // Proxies the request to local custom model (e.g. Ollama)
+            if (localEndpoint != null && !localEndpoint.trim().isEmpty()) {
+                try {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    
+                    // Simple Ollama standard payload
+                    String payload = String.format("{\n" +
+                            "  \"model\": \"llama3\",\n" +
+                            "  \"prompt\": \"%s\",\n" +
+                            "  \"stream\": false\n" +
+                            "}", question.replace("\"", "\\\""));
+                    
+                    HttpEntity<String> request = new HttpEntity<>(payload, headers);
+                    Map<String, Object> response = restTemplate.postForObject(localEndpoint, request, Map.class);
+                    
+                    if (response != null && response.containsKey("response")) {
+                        answer = (String) response.get("response");
+                    } else {
+                        answer = "Nhận được phản hồi từ Local Model nhưng không thể đọc kết quả.";
+                    }
+                } catch (Exception e) {
+                    answer = "Lỗi kết nối đến Local Model Endpoint (" + localEndpoint + "): " + e.getMessage();
+                }
+            } else {
+                answer = "Vui lòng cấu hình URL cho Local Fine-Tuned Model trong phần Module Fine-Tuning trước khi sử dụng chế độ này!";
+            }
         } else {
             // Default to RAG Mode
             List<Document> similarDocuments;
             try {
-                similarDocuments = vectorStore.similaritySearch(
-                        SearchRequest.query(question).withTopK(5)
-                );
+                SearchRequest searchRequest = SearchRequest.query(question).withTopK(5);
+                if (subject != null && !subject.trim().isEmpty()) {
+                    searchRequest = searchRequest.withFilterExpression("subject == '" + subject + "'");
+                }
+                similarDocuments = vectorStore.similaritySearch(searchRequest);
             } catch (Exception e) {
                 similarDocuments = List.of();
                 System.err.println("Vector DB not ready: " + e.getMessage());
             }
 
             String context = similarDocuments.stream()
-                    .map(doc -> "Nội dung: " + doc.getContent() + " \n [Nguồn: " + doc.getMetadata().getOrDefault("sourceDocumentId", "Unknown") + "]")
+                    .map(doc -> "Nội dung: " + doc.getContent() + " \n [Nguồn: " + doc.getMetadata().getOrDefault("filename", "Unknown") + "]")
                     .collect(Collectors.joining("\n\n"));
 
             PromptTemplate promptTemplate = new PromptTemplate(RAG_PROMPT_TEMPLATE);
-            prompt = promptTemplate.create(Map.of("context", context, "question", question));
-        }
-
-        String answer;
-        try {
-            answer = chatModel.call(prompt).getResult().getOutput().getContent();
-        } catch (Exception e) {
-            System.err.println("Error calling LLM (possibly missing API Key): " + e.getMessage());
-            answer = "Hệ thống đang hoạt động ở chế độ Demo (" + mode + "): Đây là câu trả lời được sinh tự động do thiếu API Key.";
+            Prompt prompt = promptTemplate.create(Map.of("context", context, "question", question));
+            
+            try {
+                answer = chatModel.call(prompt).getResult().getOutput().getContent();
+            } catch (Exception e) {
+                answer = "Lỗi kết nối Gemini API (RAG): " + e.getMessage();
+            }
         }
 
         messageRepository.save(ChatMessage.builder()
