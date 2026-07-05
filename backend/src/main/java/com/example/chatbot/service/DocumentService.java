@@ -8,6 +8,7 @@ import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,10 +21,12 @@ public class DocumentService {
 
     private final VectorStore vectorStore;
     private final CourseDocumentRepository repository;
+    private final JdbcTemplate jdbcTemplate;
 
-    public DocumentService(VectorStore vectorStore, CourseDocumentRepository repository) {
+    public DocumentService(VectorStore vectorStore, CourseDocumentRepository repository, JdbcTemplate jdbcTemplate) {
         this.vectorStore = vectorStore;
         this.repository = repository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public CourseDocument uploadAndIndex(MultipartFile file, String subject, String chapter) throws Exception {
@@ -70,6 +73,7 @@ public class DocumentService {
 
             return docMeta;
         } catch (Exception e) {
+            e.printStackTrace();
             docMeta.setStatus("FAILED");
             repository.save(docMeta);
             throw new RuntimeException("Failed to process document", e);
@@ -78,5 +82,17 @@ public class DocumentService {
 
     public List<CourseDocument> getAllDocuments() {
         return repository.findAll();
+    }
+
+    public void deleteDocument(Long id) {
+        try {
+            // Delete associated vectors from PGVector
+            jdbcTemplate.update("DELETE FROM vector_store WHERE metadata->>'doc_id' = ?", String.valueOf(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Warning: Could not delete vectors for document ID " + id);
+        }
+        // Delete metadata from relational database
+        repository.deleteById(id);
     }
 }

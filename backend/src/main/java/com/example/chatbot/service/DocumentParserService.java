@@ -11,7 +11,7 @@ import java.io.IOException;
 public class DocumentParserService {
 
     public String parsePdf(String filePath) throws IOException {
-        try (PDDocument document = PDDocument.load(new File(filePath))) {
+        try (PDDocument document = org.apache.pdfbox.Loader.loadPDF(new File(filePath))) {
             PDFTextStripper stripper = new PDFTextStripper();
             return stripper.getText(document);
         }
