@@ -2,6 +2,11 @@ spring:
   application:
     name: chatbot
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/rag_db
     username: postgres
@@ -10,7 +15,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -18,20 +23,21 @@ spring:
 
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:your_api_key_here}
+      api-key: YOUR_GEMINI_API_KEY
       base-url: https://generativelanguage.googleapis.com/v1beta/openai/
       chat:
         options:
           model: gemini-1.5-flash
       embedding:
-        options:
-          model: text-embedding-004
-
+        enabled: false
     vectorstore:
       pgvector:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
-        dimensions: 768
+        dimensions: 384
+        initialize-schema: true
+
+
 
 server:
   port: 8080
