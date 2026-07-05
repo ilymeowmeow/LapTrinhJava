@@ -1,4 +1,3 @@
-@@ -0,0 +1,744 @@
 # BÁO CÁO ĐỒ ÁN LẬP TRÌNH JAVA
 
 ## Xây dựng chatbot hỏi đáp tài liệu môn học và nghiên cứu RAG so với Fine-tuning trong bối cảnh tiếng Việt
