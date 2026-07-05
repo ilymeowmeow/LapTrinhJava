@@ -14,8 +14,7 @@ Chatbot AI Education là một nền tảng trợ lý hỏi đáp thông minh đ
 - [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Lưu Ý Quan Trọng](#lưu-ý-quan-trọng)
-- [Tín Dụng](#tín-dụng)
-- [Giấy Phép](#giấy-phép)
+- [Đóng góp](#Đóng-góp)
 
 ---
 
@@ -402,7 +401,7 @@ Groq API
 
 ---
 
-##  Contribution
+##  Đóng góp
 
 Dự án này được phát triển bởi:
 
