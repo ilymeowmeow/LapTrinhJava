@@ -245,8 +245,7 @@ Hệ thống áp dụng kiến trúc phân lớp:
 ## 4.3. Biểu đồ Lớp
 
 - **Draw.io**: [ClassDiagram.drawio](./ClassDiagram.drawio)
-
-![Biểu đồ Lớp](./class%20diagram.drawio.png)
+- File nguồn Draw.io đã được commit; nhóm sẽ xuất PNG/PDF khi hoàn thiện bản nộp.
 
 ## 4.4. Biểu đồ Quan hệ Thực thể (ERD)
 
@@ -257,21 +256,40 @@ Hệ thống áp dụng kiến trúc phân lớp:
 ### 4.5.1. File sơ đồ
 
 - **Draw.io:** [sequence-diagrams.drawio](./sequence-diagrams.drawio)
-- **Tài liệu đối chiếu:** [requirements-and-sequence-diagrams.md](./requirements-and-sequence-diagrams.md)
+- **Tài liệu đối chiếu:** [AUDIT_AND_RESEARCH_PLAN.md](./AUDIT_AND_RESEARCH_PLAN.md)
 - **Quy ước:** actor, participant, lifeline nét đứt, activation bar, message đánh số, return nét đứt và UML frame.
 
 ### 4.5.2. Danh sách sequence diagram
 
 | STT | Biểu đồ | Trạng thái |
 |---:|---|---|
-| 1 | Đăng nhập Google OAuth | Theo source hiện tại |
-| 2 | Upload và index tài liệu | Theo source hiện tại |
-| 3 | Hỏi đáp bằng RAG | Theo source hiện tại |
-| 4 | Quản lý phiên và lịch sử chat | Theo source hiện tại |
-| 5 | Hỏi đáp bằng fine-tuned model local | Theo source hiện tại |
-| 6 | A/B Benchmark: RAG và Fine-tuned | Đạt một phần; backend evaluation chưa xác minh |
-| 7 | Benchmark Chunking Strategies | Dự kiến / chưa xác minh end-to-end |
-| 8 | Benchmark Embedding Models | Dự kiến / chưa xác minh end-to-end |
+| 1 | Đăng nhập Google OAuth | Luồng frontend/NextAuth; backend không xử lý OAuth |
+| 2 | Upload và index tài liệu | Đã đối chiếu `DocumentController`/`DocumentService` |
+| 3 | Hỏi đáp bằng RAG | Đã đối chiếu `ChatController`/`ChatService` |
+| 4 | Quản lý phiên và lịch sử chat | Đã đối chiếu repository và entity JPA |
+| 5 | Hỏi đáp bằng fine-tuned model local | Đã đối chiếu FastAPI cổng 8001 và backend proxy |
+| 6 | A/B Benchmark: RAG và Fine-tuned | Endpoint `/api/evaluation/compare` đã có |
+| 7 | Benchmark Chunking | Endpoint `/api/evaluation/chunking` đã có |
+| 8 | Benchmark Embedding | Endpoint `/api/evaluation/embedding` đã có |
+
+### 4.5.3. Mô tả các luồng chính
+
+- **Upload/Index:** metadata được lưu ở trạng thái `PROCESSING`; Tika đọc file,
+  `TokenTextSplitter` tạo chunks, `VectorStore` lưu embedding và trạng thái đổi
+  thành `INDEXED` hoặc `FAILED`.
+- **RAG Chat:** hệ thống lưu USER message, truy xuất `topK=5` (có thể lọc theo
+  môn), ghép context/filename vào prompt, gọi Gemini rồi lưu BOT message.
+- **Fine-tuned Chat:** backend gửi `{model, prompt, stream:false}` tới local
+  endpoint và đọc trường `response`.
+- **A/B Benchmark:** `EvaluationService` chạy RAG với `topK=3`, gọi local model,
+  đo latency và trả `RagResult` cùng `BaseResult`. Endpoint chưa tự tính F1 hoặc
+  hallucination.
+- **Chunking Benchmark:** source hiện so `TokenTextSplitter`, sentence splitter
+  và paragraph splitter theo `timeMs`, `chunkCount` và nội dung chunks. Ba class
+  Fixed/Semantic/Hierarchical có tồn tại nhưng chưa được endpoint gọi trực tiếp.
+- **Embedding Benchmark:** source hiện so all-MiniLM-L6-v2 local với Gemini
+  `text-embedding-004` theo dimensions và latency; E5, PhoBERT, BGE-M3/OpenAI
+  chưa được nối vào endpoint Java.
 
 ## 4.6. Thiết kế dữ liệu
 
@@ -645,7 +663,8 @@ LapTrinhJava/
 ## Phụ lục B. Danh sách tài liệu liên quan
 
 - [Báo cáo nhóm](./Nhóm%20Lập%20Trình%20Java.md)
-- [Bảng đối chiếu yêu cầu và sequence diagram](./requirements-and-sequence-diagrams.md)
+- [Rà soát yêu cầu và kế hoạch nghiên cứu](./AUDIT_AND_RESEARCH_PLAN.md)
+- [Hướng dẫn chạy trên Windows](./RUN_WINDOWS.md)
 - [File sequence diagram Draw.io](./sequence-diagrams.drawio)
 
 ## Phụ lục C. Checklist trước khi nộp

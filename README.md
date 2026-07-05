@@ -1,434 +1,295 @@
-#  Chatbot AI Education - Hệ Thống Trợ Lý Thông Minh cho Giáo Dục
+# Chatbot AI Education
 
-Chatbot AI Education là một nền tảng trợ lý hỏi đáp thông minh được thiết kế để hỗ trợ sinh viên và giảng viên trong học tập. Hệ thống tích hợp hai chế độ hoạt động mạnh mẽ: **Chế độ RAG (Retrieval-Augmented Generation)** để truy xuất tài liệu học thuật và **Chế độ Fine-Tuning** để sử dụng kiến thức đã được tinh chỉnh, giúp cung cấp các câu trả lời chính xác và có ngữ cảnh.
+Hệ thống trợ lý hỏi đáp dành cho sinh viên, kết hợp **RAG (Retrieval-Augmented
+Generation)** và **mô hình fine-tuned** để trả lời câu hỏi dựa trên tài liệu môn
+học tiếng Việt. Dự án đồng thời cung cấp module nghiên cứu nhằm so sánh độ chính
+xác, chi phí triển khai và khả năng cập nhật kiến thức của hai phương pháp.
 
----
+## Mục lục
 
-##  Mục Lục
+- [Tính năng](#tính-năng)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Cài đặt và khởi chạy](#cài-đặt-và-khởi-chạy)
+- [Cách sử dụng](#cách-sử-dụng)
+- [Module nghiên cứu](#module-nghiên-cứu)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Bảo mật và xử lý lỗi](#bảo-mật-và-xử-lý-lỗi)
+- [Thành viên và đóng góp](#thành-viên-và-đóng-góp)
 
-- [Giới Thiệu Dự Án](#giới-thiệu-dự-án)
-- [Mô Tả Chi Tiết](#mô-tả-chi-tiết)
-- [Yêu Cầu Hệ Thống](#yêu-cầu-hệ-thống)
-- [Cách Cài Đặt và Khởi Chạy](#cách-cài-đặt-và-khởi-chạy)
-- [Cách Sử Dụng Dự Án](#cách-sử-dụng-dự-án)
-- [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
-- [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
-- [Lưu Ý Quan Trọng](#lưu-ý-quan-trọng)
-- [Đóng góp](#Đóng-góp)
+## Tính năng
 
----
+### Quản lý tài liệu
 
-##  Giới Thiệu Dự Án
+- Upload và xóa tài liệu học tập.
+- Hỗ trợ tài liệu PDF, DOCX, PPT/PPTX và văn bản.
+- Tự động chia tài liệu thành chunks và tạo vector embedding.
+- Lưu vector bằng PostgreSQL với extension PGVector.
+- Quản lý tài liệu theo môn học/chương và xem trạng thái index.
 
-**Chatbot AI Education** là một hệ thống chatbot được phát triển bằng Java Spring Boot và Next.js, nhằm mục đích giúp sinh viên giải quyết các câu hỏi học thuật một cách nhanh chóng và chính xác. 
+### Chat và hỏi đáp
 
-### Các Tính Năng Chính:
-- **Trò chuyện Real-time** với AI được hỗ trợ bởi Gemini (Google) hoặc Llama 3 (Groq)
-- **Chế độ RAG (Retrieval-Augmented Generation)**: Truy xuất tài liệu học thuật và cung cấp câu trả lời dựa trên ngữ cảnh
-- **Chế độ Fine-Tuning**: Sử dụng mô hình AI được tinh chỉnh cho các bài toán cụ thể
-- **Quản lý Tài Liệu**: Giảng viên có thể tải lên/xóa tài liệu học thuật
-- **Lịch Sử Trò Chuyện**: Lưu giữ và quản lý các phiên trò chuyện
-- **Kiến Trúc Vector Database**: Sử dụng PostgreSQL với extension PGVector để lưu trữ Embedding
+- Hội thoại theo phiên và lưu lịch sử tin nhắn.
+- Chế độ RAG chỉ sử dụng nội dung truy xuất từ tài liệu môn học.
+- Hiển thị tài liệu tham khảo và citation đi kèm câu trả lời.
+- Từ chối trả lời khi không tìm thấy thông tin phù hợp trong tài liệu.
+- Chế độ local fine-tuned sử dụng Qwen2.5-0.5B-Instruct cùng LoRA adapter.
 
----
+### Module nghiên cứu
 
-## Mô Tả Chi Tiết
+- So sánh trực tiếp RAG và mô hình fine-tuned.
+- So sánh các chiến lược chunking: fixed-size, semantic và hierarchical.
+- So sánh các embedding model tiếng Việt/đa ngôn ngữ.
+- Dashboard hiển thị độ chính xác, độ trễ và kết quả thực nghiệm.
+- Hỗ trợ test set 50 câu hỏi kèm ground truth và bảng đánh giá RAGAS.
 
-### Mục Đích Dự Án
-Dự án được tạo ra để giải quyết các thách thức trong giáo dục hiện đại:
-- **Hỗ trợ học tập 24/7**: Sinh viên có thể đặt câu hỏi bất cứ lúc nào mà không cần chờ giảng viên
-- **Cá nhân hóa kiến thức**: Huấn luyện mô hình AI dựa trên tài liệu và nội dung cụ thể của từng khóa học
-- **Giảm bớt tải công việc cho giảng viên**: Tự động hóa việc trả lời các câu hỏi thường gặp
+## Công nghệ sử dụng
 
-### Tại Sao Chọn Công Nghệ Này?
+| Thành phần | Công nghệ |
+|---|---|
+| Backend | Java 17, Spring Boot, Spring AI, Spring Data JPA |
+| Frontend | Next.js, React, TypeScript, Tailwind CSS, NextAuth |
+| Database | PostgreSQL, PGVector |
+| LLM | Google Gemini qua OpenAI-compatible API |
+| Fine-tuning | Python, PyTorch, Transformers, PEFT/LoRA, Qwen2.5 |
+| Hạ tầng | Docker, Docker Compose, Maven, npm |
 
-| Công Nghệ | Lý Do Lựa Chọn |
-|-----------|-------------|
-| **Java Spring Boot** | Framework mạnh mẽ, ổn định, hỗ trợ microservices và dễ mở rộng |
-| **Spring AI** | Tích hợp liền mạch với Gemini API và Groq, giảm độ phức tạp |
-| **PostgreSQL + PGVector** | Cơ sở dữ liệu Vector hiệu năng cao, phù hợp cho ứng dụng RAG |
-| **Next.js + React** | Frontend modern, hỗ trợ server-side rendering, tối ưu hiệu năng |
-| **Tailwind CSS** | Styling hiệu quả, giúp xây dựng giao diện đẹp nhanh chóng |
-| **Docker** | Đơn giản hóa quá trình triển khai, đảm bảo tính nhất quán giữa các môi trường |
+Các embedding model phục vụ thực nghiệm gồm multilingual-e5, PhoBERT,
+BGE-M3 và có thể mở rộng với `text-embedding-3-small` khi có OpenAI credit.
 
-### Những Thách Thức Gặp Phải & Giải Pháp
+## Yêu cầu hệ thống
 
-| Thách Thức | Giải Pháp |
-|-----------|----------|
-| **AI Hallucination** (AI bịa bỏ thông tin) | Sử dụng chế độ RAG để giới hạn AI chỉ trả lời dựa trên tài liệu có sẵn |
-| **Bảo mật API Key** | Sử dụng Environment Variables, không hard-code key vào mã nguồn |
-| **Hiệu năng tìm kiếm** | Sử dụng Vector Embedding + Cosine Similarity để tìm kiếm nhanh |
-| **Khối lượng yêu cầu cao** | Thiết kế kiến trúc phân lớp (N-Tier) để dễ dàng scale-out |
-| **Tính linh hoạt của AI** | Cung cấp cả chế độ RAG và Fine-Tuning để người dùng chọn phù hợp |
+- Java 17.
+- Maven 3.8 trở lên.
+- Node.js 18 trở lên và npm.
+- Python 3.10 trở lên cho fine-tuning/benchmark.
+- Docker Desktop.
+- Git.
 
-### Tính Năng Lên Kế Hoạch cho Tương Lai
--  **Hỗ trợ Đa Ngôn Ngữ**: Mở rộng hỗ trợ nhiều ngôn ngữ khác
--  **Xuất Báo Cáo**: Cho phép sinh viên xuất lịch sử trò chuyện thành PDF
--  **Tích hợp LMS**: Kết nối với các hệ thống quản lý học tập (Canvas, Moodle, Blackboard)
--  **Analytics & Dashboard**: Phân tích hành vi học tập của sinh viên
--  **Hỗ Trợ Voice**: Nhập câu hỏi bằng giọng nói
+Kiểm tra nhanh:
 
----
-
-## Yêu Cầu Hệ Thống
-
-Để chạy dự án này, máy tính của bạn cần cài đặt sẵn:
-
-- **Java 17 hoặc cao hơn** - Dùng cho Spring Boot Backend
-  - [Tải Java từ Oracle](https://www.oracle.com/java/technologies/downloads/#java17)
-  
-- **Node.js v18 hoặc v20+** - Dùng cho Next.js Frontend
-  - [Tải Node.js](https://nodejs.org/)
-  
-- **Docker Desktop** - Dùng để chạy PostgreSQL với PGVector
-  - [Tải Docker Desktop](https://www.docker.com/products/docker-desktop)
-  
-- **Git** - Để clone source code
-  - [Tải Git](https://git-scm.com/)
-  
-- **Maven 3.8+** (tùy chọn) - Để build Java project
-  - Có sẵn trong Spring Boot Wrapper, nhưng có thể cài riêng từ [Apache Maven](https://maven.apache.org/)
-
-### Kiểm Tra Cài Đặt
-```bash
-# Kiểm tra Java
+```powershell
 java -version
-
-# Kiểm tra Node.js
+mvn -version
 node --version
 npm --version
-
-# Kiểm tra Docker
+python --version
 docker --version
-
-# Kiểm tra Git
-git --version
 ```
 
----
+## Cài đặt và khởi chạy
 
-## Cách Cài Đặt và Khởi Chạy
+### 1. Clone source code
 
-### Bước 1: Clone Repository
-
-```bash
+```powershell
 git clone https://github.com/ilymeowmeow/LapTrinhJava.git
 cd LapTrinhJava
 ```
 
-### Bước 2: Thiết Lập Database (PostgreSQL + PGVector)
+### 2. Khởi động PostgreSQL và PGVector
 
-Hệ thống sử dụng PostgreSQL với extension Vector để lưu trữ dữ liệu và vector embedding.
+Mở Docker Desktop, sau đó chạy tại thư mục gốc:
 
-1. Mở Terminal/CMD tại thư mục gốc dự án
-2. Khởi động Database bằng Docker:
-   ```bash
-   docker-compose up -d
-   ```
-   Đợi Docker kéo image về và khởi chạy container. Database `rag_db` sẽ được tạo tự động.
-
-3. Kiểm tra trạng thái container:
-   ```bash
-   docker-compose ps
-   ```
-   Bạn sẽ thấy `rag_db` đang chạy trên port `5432`.
-
-### Bước 3: Cấu Hình API Key (Bảo Mật)
-
-Dự án sử dụng Gemini (Google) và Llama 3 (Groq). **KHÔNG** nên hard-code API Key vào mã nguồn.
-
-#### Trên Windows:
-1. Nhấn `Windows + X`, chọn "System"
-2. Chọn "Advanced system settings" → "Environment Variables"
-3. Nhấn "New" dưới "User variables" và thêm:
-   - **Variable name**: `OPENAI_API_KEY`
-   - **Variable value**: [Điền API Key của Google Gemini]
-   
-4. Tương tự, thêm biến:
-   - **Variable name**: `GROQ_API_KEY`
-   - **Variable value**: [Điền API Key của Groq]
-
-5. **Khởi động lại IDE hoặc Terminal** để biến môi trường có hiệu lực
-
-#### Trên macOS/Linux:
-```bash
-# Thêm vào ~/.bash_profile hoặc ~/.zshrc
-export OPENAI_API_KEY="your_gemini_api_key_here"
-export GROQ_API_KEY="your_groq_api_key_here"
-
-# Áp dụng thay đổi
-source ~/.bash_profile
+```powershell
+docker compose up -d
+docker compose ps
 ```
 
-#### Hoặc sử dụng file `.env` (tùy chọn):
-Tạo file `.env` ở thư mục `backend/`:
-```
-OPENAI_API_KEY=your_gemini_api_key_here
-GROQ_API_KEY=your_groq_api_key_here
-```
+Cấu hình mặc định:
 
-> **⚠️ Lưu ý**: Không commit file `.env` vào Git. Đã có trong `.gitignore`.
+- Host: `localhost:5432`
+- Database: `rag_db`
+- Username: `postgres`
+- Password: `postgres`
 
-### Bước 4: Khởi Chạy Backend (Spring Boot)
+Không dùng `docker compose down -v` nếu muốn giữ dữ liệu đã index.
 
-1. Mở một Terminal/CMD mới
-2. Di chuyển vào thư mục backend:
-   ```bash
-   cd backend
-   ```
-3. Chạy ứng dụng bằng Maven:
-   ```bash
-   mvn clean spring-boot:run
-   ```
-4. Đợi vài giây cho đến khi terminal hiển thị:
-   ```
-   Started ChatbotApplication in X.XXX seconds
-   ```
-5. Backend sẽ khởi chạy tại: **http://localhost:8080**
+### 3. Cấu hình Gemini API key
 
-> **Tip**: Nếu gặp lỗi, kiểm tra:
-> - Docker đã chạy và database sẵn sàng?
-> - Environment variables đã được thiết lập?
-> - Port 8080 có bị chiếm bởi ứng dụng khác?
+Tạo key tại [Google AI Studio](https://aistudio.google.com/app/apikey), sau đó
+đặt biến môi trường trong PowerShell:
 
-### Bước 5: Khởi Chạy Frontend (Next.js)
-
-1. Mở một Terminal/CMD **MỚI**, giữ nguyên terminal Backend đang chạy
-2. Di chuyển vào thư mục frontend:
-   ```bash
-   cd frontend
-   ```
-3. Cài đặt các thư viện (chỉ cần chạy lần đầu):
-   ```bash
-   npm install
-   ```
-4. Khởi chạy ứng dụng Frontend:
-   ```bash
-   npm run dev
-   ```
-5. Mở trình duyệt và truy cập: **http://localhost:3000**
-
----
-
-## Cách Sử Dụng Dự Án
-
-### Cho Sinh Viên
-
-#### 1. Tạo Phiên Trò Chuyện Mới
-- Truy cập http://localhost:3000
-- Nhấn "New Chat" hoặc "Tạo Phiên Mới"
-- Hệ thống sẽ tạo một phiên chat riêng với ID duy nhất
-
-#### 2. Đặt Câu Hỏi
-- Gõ câu hỏi vào ô "Nhập câu hỏi của bạn..."
-- Chọn chế độ:
-  - **RAG Mode**: AI sử dụng tài liệu học thuật đã tải lên
-  - **Fine-Tuning Mode**: AI sử dụng kiến thức đã được tinh chỉnh
-- Nhấn "Gửi" hoặc Enter
-- Chờ AI trả lời (thường mất 2-5 giây)
-
-#### 3. Xem Lịch Sử Trò Chuyện
-- Danh sách phiên trò chuyện hiển thị ở sidebar bên trái
-- Nhấn vào bất kỳ phiên nào để xem lịch sử
-
-### Cho Giảng Viên (Admin)
-
-#### 1. Tải Lên Tài Liệu Học Thuật
-- Truy cập phần "Documents" (Quản lý Tài Liệu)
-- Nhấn "Upload Document"
-- Chọn file PDF, TXT, hoặc DOCX từ máy tính
-- Điền thông tin:
-  - **Tên tài liệu**: Ví dụ "Bài giảng Java OOP"
-  - **Môn học**: Ví dụ "Lập trình Java"
-- Nhấn "Upload"
-- Hệ thống sẽ tự động cắt tài liệu thành các chunks và tạo embedding vector
-
-#### 2. Quản Lý Tài Liệu
-- Xem danh sách tất cả tài liệu đã tải lên
-- Nhấn nút "Delete" để xóa tài liệu không cần thiết
-- Tài liệu đã xóa sẽ không còn được sử dụng trong chế độ RAG
-
-#### 3. Huấn Luyện Mô Hình (Fine-Tuning)
-- Truy cập phần "Fine-Tuning"
-- Nhấn "Start Fine-Tuning"
-- Chọn model: Gemini hoặc Llama 3
-- Chọn tập dữ liệu từ thư mục `/finetuning/` (file JSON)
-- Nhấn "Train"
-- Hệ thống sẽ bắt đầu huấn luyện (có thể mất 5-30 phút)
-- Xem tiến độ: Phần "Status" hiển thị tương lai độ hoàn thành
-
-### Ví Dụ Sử Dụng
-
-**Scenario 1: Sinh viên sử dụng RAG Mode**
-```
-Sinh viên: "Hãy giải thích về Design Pattern Factory trong Java?"
-AI (RAG Mode): 
-"Dựa trên tài liệu 'Design Patterns in Java', Factory Pattern là...
-[Trích xuất từ tài liệu + tổng hợp]"
+```powershell
+$env:SPRING_AI_OPENAI_API_KEY="YOUR_GEMINI_API_KEY"
 ```
 
-**Scenario 2: Giảng viên sử dụng Fine-Tuning Mode**
-```
-Giảng viên: "Tôi muốn hệ thống trả lời các câu hỏi dựa trên bài giảng riêng"
-→ Tải lên bài giảng (PDF)
-→ Khởi chạy Fine-Tuning
-→ Sinh viên đặt câu hỏi → AI trả lời dựa trên bài giảng
+Tên biến có chữ `OPENAI` vì backend gọi Gemini thông qua giao thức tương thích
+OpenAI. Đây vẫn phải là **Gemini API key**, không phải OpenAI API key.
+
+Không ghi key thật vào `application.yml`, README hoặc commit lên Git. Nếu key
+từng bị công khai, cần thu hồi và tạo key mới ngay.
+
+### 4. Cấu hình Google OAuth cho frontend
+
+1. Tạo project tại [Google Cloud Console](https://console.cloud.google.com/).
+2. Cấu hình OAuth consent screen.
+3. Tạo OAuth Client ID loại **Web application**.
+4. Thêm redirect URI:
+   `http://localhost:3000/api/auth/callback/google`.
+5. Tạo `frontend/.env.local`:
+
+```env
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_random_secret
 ```
 
----
+### 5. Khởi chạy backend
 
-## Cấu Trúc Dự Án
-
+```powershell
+cd backend
+mvn clean spring-boot:run
 ```
+
+Backend chạy tại `http://localhost:8080`.
+
+### 6. Khởi chạy local fine-tuned model
+
+Ở terminal khác:
+
+```powershell
+cd finetuning
+pip install -r requirements.txt
+python api_server.py
+```
+
+Local inference API chạy tại `http://localhost:8001/api/generate`. Backend cần
+được cấu hình endpoint này khi chạy chế độ fine-tuned.
+
+Việc train lại model là tùy chọn:
+
+```powershell
+cd finetuning
+python train_qwen.py
+```
+
+Checkpoint LoRA được lưu trong `finetuning/finetuned_model`.
+
+### 7. Khởi chạy frontend
+
+```powershell
+cd frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+Mở `http://localhost:3000` trên trình duyệt. Dùng `npm.cmd` trên PowerShell nếu
+máy chặn thực thi `npm.ps1`.
+
+## Cách sử dụng
+
+### Sinh viên
+
+1. Đăng nhập và mở trang Chat.
+2. Tạo hoặc chọn một phiên hội thoại.
+3. Chọn môn học và chế độ RAG/fine-tuned.
+4. Nhập câu hỏi và gửi.
+5. Kiểm tra câu trả lời cùng citation/tài liệu tham khảo.
+
+### Quản lý tài liệu
+
+1. Mở trang Documents.
+2. Chọn file, nhập môn học, chương và chiến lược chunking.
+3. Upload và chờ trạng thái index hoàn tất.
+4. Xem danh sách hoặc xóa tài liệu không còn sử dụng.
+
+### Dashboard nghiên cứu
+
+Mở `http://localhost:3000/research` để xem:
+
+1. RAG so với fine-tuned model.
+2. Fixed-size so với semantic và hierarchical chunking.
+3. So sánh các embedding model.
+
+## Module nghiên cứu
+
+### Câu hỏi nghiên cứu
+
+- **RQ chính:** RAG hay fine-tuning hiệu quả hơn cho chatbot hỗ trợ học tập với
+  tài liệu tiếng Việt xét theo độ chính xác, chi phí và khả năng cập nhật?
+- **RQ phụ 1:** Chiến lược chunking nào cho retrieval accuracy tốt nhất với
+  slide/PDF bài giảng?
+- **RQ phụ 2:** Embedding model nào phù hợp nhất với tài liệu kỹ thuật tiếng Việt?
+
+### API chính
+
+| Method | Endpoint | Chức năng |
+|---|---|---|
+| `POST` | `/api/chat/session` | Tạo phiên chat |
+| `GET` | `/api/chat/session/{id}/messages` | Lấy lịch sử phiên |
+| `POST` | `/api/chat/ask/{id}` | Gửi câu hỏi |
+| `POST` | `/api/documents/upload` | Upload và index tài liệu |
+| `GET` | `/api/documents` | Danh sách tài liệu |
+| `DELETE` | `/api/documents/{id}` | Xóa tài liệu |
+| `POST` | `/api/evaluation/compare` | So sánh RAG/fine-tuned |
+| `POST` | `/api/evaluation/chunking` | Benchmark chunking |
+| `POST` | `/api/evaluation/embedding` | Benchmark embedding |
+
+Kết quả benchmark và báo cáo thực nghiệm được lưu trong `evaluation/` và
+`reports/` (nếu đã được sinh). Tài liệu phân tích, thiết kế và báo cáo nhóm được
+đặt trong `docs/`.
+
+## Cấu trúc dự án
+
+```text
 LapTrinhJava/
-├── backend/                      # Spring Boot Backend
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/
-│   │   │   │   └── com/chatbot/
-│   │   │   │       ├── controller/    # REST API Controllers
-│   │   │   │       ├── service/       # Business Logic
-│   │   │   │       ├── repository/    # Data Access Layer
-│   │   │   │       └── entity/        # Database Entities
-│   │   │   └── resources/
-│   │   │       └── application.yml    # Spring Boot Configuration
-│   │   └── test/                 # Unit & Integration Tests
-│   ├── pom.xml                   # Maven Dependencies
-│   └── mvnw / mvnw.cmd           # Maven Wrapper
-│
-├── frontend/                     # Next.js Frontend
-│   ├── src/
-│   │   ├── app/                  # Next.js App Router
-│   │   ├── components/           # React Components
-│   │   ├── lib/                  # Utility Functions
-│   │   └── styles/               # Tailwind CSS Styles
-│   ├── public/                   # Static Assets
-│   ├── package.json
-│   ├── next.config.ts
-│   └── tsconfig.json
-│
-├── finetuning/                   # Fine-Tuning Scripts & Data
-│   ├── dataset/                  # Training Datasets (JSON)
-│   └── scripts/                  # Python Scripts
-│
-├── scripts/                      # Utility Scripts
-│   └── test_gemini.py           # Test Gemini API Connection
-│
-├── docker-compose.yml            # Docker Compose Configuration
-├── .gitignore
-├── .cursorrules                  # AI Coding Rules
-├── README.md                     # Original README (Vietnamese)
-└── Phân tích và Thiết kế Hệ thống Chatbot AI.md  # Technical Design Document
+├── backend/              # Spring Boot REST API, RAG và persistence
+├── frontend/             # Next.js web app
+├── finetuning/           # Dataset, train script, LoRA adapter, local API
+├── evaluation/           # Test set và kết quả đánh giá
+├── scripts/              # Benchmark/utility scripts
+├── reports/              # Báo cáo thực nghiệm
+├── docs/                 # Tài liệu phân tích, thiết kế và báo cáo nhóm
+├── docker-compose.yml    # PostgreSQL + PGVector
+└── README.md
 ```
 
-### Mô Tả Các Thư Mục Chính
+Backend được tổ chức theo kiến trúc phân lớp:
 
-| Thư Mục | Mô Tả |
-|---------|-------|
-| **backend/** | Chứa toàn bộ mã nguồn Spring Boot, xử lý API, logic RAG, kết nối database |
-| **frontend/** | Giao diện web Next.js, quản lý state, gọi API backend |
-| **finetuning/** | Tập dữ liệu, script Python để huấn luyện mô hình AI |
-| **scripts/** | Các script utility, như test kết nối API |
-| **.cursorrules** | Quy tắc lập trình cho AI agents (Cursor, Copilot) |
-
----
-
-## Công Nghệ Sử Dụng
-
-### Backend Stack
-```
-Java 17
-├── Spring Boot 3.x
-├── Spring AI (Gemini & Groq Integration)
-├── Spring Data JPA
-├── PostgreSQL + PGVector
-└── Maven
+```text
+Controller → Service → Repository → PostgreSQL/PGVector
 ```
 
-### Frontend Stack
-```
-Node.js v18+
-├── Next.js 15+
-├── React 18+
-├── TypeScript
-├── Tailwind CSS
-└── npm/npx
-```
+## Bảo mật và xử lý lỗi
 
-### Infrastructure
-```
-Docker & Docker Compose
-└── PostgreSQL 15+ (với pgvector extension)
-```
+### Nguyên tắc bảo mật
 
-### External APIs
-```
-Google Gemini API
-├── gemini-robotics-er-1.6-preview (Chat Model)
-└── gemini-embedding-2 (Embedding Model)
+- Không commit API key, OAuth secret hoặc file `.env.local`.
+- Không ghi API key trực tiếp trong mã nguồn.
+- Chỉ upload tài liệu được phép sử dụng.
+- Thu hồi key ngay nếu từng xuất hiện trong terminal log hoặc Git history.
 
-Groq API
-└── llama-3.1-8b-instant (Chat Model)
-```
+### Lỗi thường gặp
 
----
+| Lỗi | Cách xử lý |
+|---|---|
+| Maven không thấy Spring Boot plugin | Chạy Maven trong thư mục `backend` |
+| `npm.ps1 cannot be loaded` | Dùng `npm.cmd install` và `npm.cmd run dev` |
+| Google OAuth `invalid_client` | Kiểm tra Client ID/Secret và redirect URI |
+| Backend không kết nối database | Kiểm tra Docker và cổng PostgreSQL 5432 |
+| Gemini trả quota error | Kiểm tra quota/project gắn với API key |
+| Fine-tuned model chưa sẵn sàng | Chạy `python api_server.py` và kiểm tra cổng 8001 |
 
-## Lưu Ý Quan Trọng
+## Thành viên và đóng góp
 
-### Bảo Mật
-- **Không bao giờ commit API Key vào Git**. Luôn sử dụng Environment Variables.
-- Giữ file `.env` ngoài source control (đã được thêm vào `.gitignore`).
-- Nếu vô tình công khai API Key, hãy đổi key ngay lập tức trên các nền tảng cung cấp.
+| Thành viên | Hạng mục phụ trách | GitHub |
+|---|---|---|
+| Đỗ Thiên Phúc | Backend Engineer | [ilymeowmeow](https://github.com/ilymeowmeow) |
+| Huỳnh Thành Phát | AI/Backend Lead | [thanhphatblue2104-glitch](https://github.com/thanhphatblue2104-glitch) |
+| Huỳnh Lê Bảo Trâm | Frontend Engineer | [nonamemiurin-png](https://github.com/nonamemiurin-png) |
+| Hà Hữu Tường | Backend Engineer | [tuonghh2477-dot](https://github.com/tuonghh2477-dot) |
+| Dương Đình Khôi | Frontend Engineer | [khoidd1318-247](https://github.com/khoidd1318-247) |
 
-### Kiến Trúc Code
-- Dự án sử dụng file `.cursorrules` để hướng dẫn AI agents tuân theo kiến trúc:
-  - **Không** hard-code API Keys
-  - **Không** phá vỡ cấu trúc N-Tier (Controller → Service → Repository)
-  - **Không** xóa hoặc sửa đổi `.cursorrules`
+## Tài liệu tham khảo
 
-### Hiệu Năng
-- **RAG Mode**: Tìm kiếm và truy xuất tài liệu (2-3 giây)
-- **Fine-Tuning Mode**: Chỉ sử dụng kiến thức mô hình (1-2 giây)
-- Nếu hệ thống chậm, kiểm tra:
-  - Docker đã sẵn sàng?
-  - Network connection ổn định?
-  - API quota của Gemini/Groq còn đủ?
+- [Báo cáo nhóm](./docs/Nhóm%20Lập%20Trình%20Java.md)
+- [Sơ đồ sequence Draw.io](./docs/sequence-diagrams.drawio)
+- [Hướng dẫn chạy trên Windows](./docs/RUN_WINDOWS.md)
+- [Rà soát yêu cầu và kế hoạch nghiên cứu](./docs/AUDIT_AND_RESEARCH_PLAN.md)
+- [Spring AI](https://spring.io/projects/spring-ai)
+- [Next.js](https://nextjs.org/docs)
+- [PGVector](https://github.com/pgvector/pgvector)
+- [Google AI Studio](https://aistudio.google.com/)
 
-### Database
-- PostgreSQL sẽ tự động tạo database `rag_db` khi container khởi chạy lần đầu
-- Để reset database: `docker-compose down -v` (xóa toàn bộ dữ liệu)
-- Để xem dữ liệu trong database: Sử dụng pgAdmin hoặc psql CLI
-
----
-
-##  Đóng góp
-
-Dự án này được phát triển bởi:
-
-| Thành Viên            | Vai Trò                                   | GitHub                                        |
-|-----------------------|-------------------------------------------|-----------------------------------------------|
-| **Đỗ Thiên Phúc**     | Backend Development                       | (https://github.com/ilymeowmeow) |
-| **Huỳnh Thành Phát**  | Lead AI Development + Backend Development | (https://github.com/thanhphatblue2104-glitch)                                        |
-| **Huỳnh Lê Bảo Trâm** | Frontend Development + AI Assistant       | (https://github.com/nonamemiurin-png)                                  |
-| **Hà Hữu Tường**      | Backend Development                       | (https://github.com/tuonghh2477-dot)                                   |
-| **Dương Đình Khôi**   | Frontend Development + AI Assistant       | (https://github.com/khoidd1318-247)                                   |
-
-### Cảm Ơn Đặc Biệt
-- Nhóm hỗ trợ từ **Google Gemini** và **Groq** vì cung cấp API mạnh mẽ
-- Cộng đồng **Spring Boot** và **Next.js** vì tài liệu chi tiết
-- Thầy **Nguyễn Văn Chiến** đã hướng dẫn và phản hồi
-
----
-
-##  Tài Liệu Bổ Sung
-
-- [Tài liệu Kiến Trúc Hệ Thống (UML)](./Phân%20tích%20và%20Thiết%20kế%20Hệ%20thống%20Chatbot%20AI.md)
-- [Spring AI Documentation](https://spring.io/projects/spring-ai)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [PostgreSQL + pgvector Guide](https://github.com/pgvector/pgvector)
-
----
-
-**Cảm ơn bạn đã quan tâm đến dự án Chatbot AI Education! Happy Coding! 
-
-*Cập nhật lần cuối: Tháng 7 năm 2026*
+> Cập nhật: tháng 7 năm 2026.
