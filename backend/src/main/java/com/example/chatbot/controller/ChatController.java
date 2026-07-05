@@ -34,16 +34,46 @@ public class ChatController {
         return ResponseEntity.ok(chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId));
     }
 
+    @DeleteMapping("/session/{sessionId}")
+    public ResponseEntity<Void> deleteSession(@PathVariable Long sessionId) {
+        chatSessionRepository.deleteById(sessionId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/ask/{sessionId}")
     public ResponseEntity<Map<String, String>> askQuestion(@PathVariable Long sessionId, @RequestBody Map<String, String> payload) {
         String question = payload.get("question");
         String mode = payload.getOrDefault("mode", "RAG Mode");
+        String subject = payload.get("subject");
+        String localEndpoint = payload.get("localModelEndpoint");
         
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         
-        String answer = chatService.askQuestion(sessionId, question, mode);
+        String answer = chatService.askQuestion(sessionId, question, mode, subject, localEndpoint);
+        return ResponseEntity.ok(Map.of("answer", answer));
+    }
+
+    @PostMapping("")
+    public ResponseEntity<Map<String, String>> askQuestionGeneric(@RequestBody Map<String, String> payload) {
+        ChatSession session = chatSessionRepository.findById(1L).orElseGet(() -> {
+            ChatSession newSession = ChatSession.builder().title("Default Session").build();
+            return chatSessionRepository.save(newSession);
+        });
+        
+        String question = payload.get("query"); // Matches frontend "query"
+        String mode = payload.getOrDefault("mode", "rag"); // Matches frontend "rag" or "finetune"
+        String subject = payload.get("subject");
+        
+        if (question == null || question.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        String mappedMode = "finetune".equalsIgnoreCase(mode) ? "Fine-tuning Mode" : "RAG Mode";
+        String localEndpoint = payload.get("localModelEndpoint");
+        String answer = chatService.askQuestion(session.getId(), question, mappedMode, subject, localEndpoint);
+        
         return ResponseEntity.ok(Map.of("answer", answer));
     }
 }
