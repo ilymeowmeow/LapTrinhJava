@@ -17,6 +17,7 @@ public class ChatMessage {
 
     @ManyToOne
     @JoinColumn(name = "session_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private ChatSession session;
 
     private String role; // "USER" or "BOT"

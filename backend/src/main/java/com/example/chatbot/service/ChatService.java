@@ -38,7 +38,7 @@ public class ChatService {
             Bạn là một trợ lý ảo giáo dục thông minh. Bạn chỉ được phép trả lời các câu hỏi dựa trên các tài liệu tham khảo được cung cấp bên dưới.
             Tuyệt đối không được bịa đặt (hallucinate) thông tin. Nếu trong tài liệu không có thông tin, hãy trả lời: "Tôi không tìm thấy thông tin này trong tài liệu môn học."
             
-            Khi bạn sử dụng thông tin từ tài liệu, BẮT BUỘC phải kèm theo trích dẫn rõ ràng [Tên File - Nguồn].
+            Khi bạn sử dụng thông tin từ tài liệu, BẮT BUỘC phải kèm theo trích dẫn rõ ràng (ví dụ: [Nguồn: ten_file.pdf]).
             
             TÀI LIỆU THAM KHẢO:
             {context}
@@ -62,6 +62,12 @@ public class ChatService {
                     ChatSession newSession = ChatSession.builder().title("Auto-created Session").build();
                     return sessionRepository.save(newSession);
                 });
+
+        if (session.getTitle() == null || session.getTitle().equals("New Conversation") || session.getTitle().equals("Auto-created Session") || session.getTitle().equals("Default Session")) {
+            String shortTitle = question.length() > 30 ? question.substring(0, 30) + "..." : question;
+            session.setTitle(shortTitle);
+            sessionRepository.save(session);
+        }
         
         messageRepository.save(ChatMessage.builder()
                 .session(session)

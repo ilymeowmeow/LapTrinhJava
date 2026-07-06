@@ -34,6 +34,11 @@ public class ChatController {
         return ResponseEntity.ok(chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId));
     }
 
+    @GetMapping("/sessions")
+    public ResponseEntity<List<ChatSession>> getAllSessions() {
+        return ResponseEntity.ok(chatSessionRepository.findAllNonEmptySessions());
+    }
+
     @DeleteMapping("/session/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable Long sessionId) {
         chatSessionRepository.deleteById(sessionId);
