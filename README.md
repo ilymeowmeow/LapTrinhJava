@@ -276,8 +276,6 @@ LapTrinhJava/
 ```
 
 Backend được tổ chức theo kiến trúc phân lớp:
-
-```text
 Controller → Service → Repository → PostgreSQL/PGVector
 ```
 
