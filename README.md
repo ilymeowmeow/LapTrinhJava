@@ -230,24 +230,52 @@ Kết quả benchmark và báo cáo thực nghiệm được lưu trong `evaluat
 `reports/` (nếu đã được sinh). Tài liệu phân tích, thiết kế và báo cáo nhóm được
 đặt trong `docs/`.
 
-## Cấu trúc dự án
+## Cấu Trúc Dự Án
 
-```text
+```
 LapTrinhJava/
-├── backend/              # Spring Boot REST API, RAG và persistence
-├── frontend/             # Next.js web app
-├── finetuning/           # Dataset, train script, LoRA adapter, local API
-├── evaluation/           # Test set và kết quả đánh giá
-├── scripts/              # Benchmark/utility scripts
-├── reports/              # Báo cáo thực nghiệm
-├── docs/                 # Tài liệu phân tích, thiết kế và báo cáo nhóm
-├── docker-compose.yml    # PostgreSQL + PGVector
-└── README.md
+├── backend/                      # Spring Boot Backend
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/chatbot/
+│   │   │   │       ├── controller/    # REST API Controllers
+│   │   │   │       ├── service/       # Business Logic
+│   │   │   │       ├── repository/    # Data Access Layer
+│   │   │   │       └── entity/        # Database Entities
+│   │   │   └── resources/
+│   │   │       └── application.yml    # Spring Boot Configuration
+│   │   └── test/                 # Unit & Integration Tests
+│   ├── pom.xml                   # Maven Dependencies
+│   └── mvnw / mvnw.cmd           # Maven Wrapper
+│
+├── frontend/                     # Next.js Frontend
+│   ├── src/
+│   │   ├── app/                  # Next.js App Router
+│   │   ├── components/           # React Components
+│   │   ├── lib/                  # Utility Functions
+│   │   └── styles/               # Tailwind CSS Styles
+│   ├── public/                   # Static Assets
+│   ├── package.json
+│   ├── next.config.ts
+│   └── tsconfig.json
+│
+├── finetuning/                   # Fine-Tuning Scripts & Data
+│   ├── dataset/                  # Training Datasets (JSON)
+│   └── scripts/                  # Python Scripts
+│
+├── scripts/                      # Utility Scripts
+│   └── test_gemini.py           # Test Gemini API Connection
+│
+├── docker-compose.yml            # Docker Compose Configuration
+├── .gitignore
+├── .cursorrules                  # AI Coding Rules
+├── README.md                     # Original README (Vietnamese)
+└── Phân tích và Thiết kế Hệ thống Chatbot AI.md  # Technical Design Document
+```
 ```
 
 Backend được tổ chức theo kiến trúc phân lớp:
-
-```text
 Controller → Service → Repository → PostgreSQL/PGVector
 ```
 
@@ -273,13 +301,14 @@ Controller → Service → Repository → PostgreSQL/PGVector
 
 ## Thành viên và đóng góp
 
-| Thành viên | Hạng mục phụ trách | GitHub |
-|---|---|---|
-| Đỗ Thiên Phúc | Backend Engineer | [ilymeowmeow](https://github.com/ilymeowmeow) |
-| Huỳnh Thành Phát | AI/Backend Lead | [thanhphatblue2104-glitch](https://github.com/thanhphatblue2104-glitch) |
-| Huỳnh Lê Bảo Trâm | Frontend Engineer | [nonamemiurin-png](https://github.com/nonamemiurin-png) |
-| Hà Hữu Tường | Backend Engineer | [tuonghh2477-dot](https://github.com/tuonghh2477-dot) |
-| Dương Đình Khôi | Frontend Engineer | [khoidd1318-247](https://github.com/khoidd1318-247) |
+| Hạng mục phụ trách (Role) | Thành viên | Công việc/Deliverable | Trạng thái |
+|---|---|---|---|
+| AI/Backend Lead | Huỳnh Thành Phát | `train_qwen.py`, `api_server.py` (Fine-tuning pipeline); `EmbeddingService.java`, `VectorStorageService.java` (Vector DB); `GeminiNativeClient.java` và prompt engineering; các chunking strategies trong `Chunking.java` | Hoàn thành |
+| Backend Engineer 1 | Đỗ Thiên Phúc | `ChatService.java`, `ChatController.java`; `ChatSession.java`, `ChatMessage.java`; `ChatMessageRepository.java`, `ChatSessionRepository.java`; `ChatRequest.java`, `ChatResponse.java` | Hoàn thành |
+| Backend Engineer 2 | Hà Hữu Tường | `DocumentService.java`, `DocumentController.java`; `DocumentParserService.java` (PDF/DOCX parsing); `CourseDocument.java`, `Chunking.java`; `FineTuningService.java`, `FineTuningController.java` | Hoàn thành |
+| Frontend Engineer 1 | Dương Đình Khôi | `app/chat/page.tsx` (chat interface); `app/page.tsx` (main dashboard); `Sidebar.tsx`, `SessionProviderWrapper.tsx`; message rendering và mode selector | Hoàn thành |
+| Frontend Engineer 2 | Huỳnh Lê Bảo Trâm | `app/documents/page.tsx` (upload, delete, list); `app/research/page.tsx` (evaluation dashboard); `globals.css` (styling); visualization và charts | Hoàn thành |
+
 
 ## Tài liệu tham khảo
 
@@ -291,5 +320,20 @@ Controller → Service → Repository → PostgreSQL/PGVector
 - [Next.js](https://nextjs.org/docs)
 - [PGVector](https://github.com/pgvector/pgvector)
 - [Google AI Studio](https://aistudio.google.com/)
+## Checklist trước khi nộp
+
+- [ ] Điền mã đồ án, học kỳ và contribution rate.
+- [ ] Thêm Use Case Diagram.
+- [ ] Thêm Class Diagram.
+- [ ] Thêm ERD.
+- [ ] Rà soát lại Sequence Diagram theo source cuối.
+- [ ] Commit test set 50 câu và ground truth.
+- [ ] Điền các bảng kết quả benchmark bằng số liệu đã xác minh.
+- [ ] Chạy backend/frontend test trên máy nhóm.
+- [ ] Kiểm tra README và hướng dẫn cài đặt.
+- [ ] Kiểm tra không có API key/secret trong Git.
+- [ ] Chuẩn hóa tài liệu tham khảo.
+- [ ] Xuất báo cáo sang PDF và kiểm tra định dạng.
+
 
 > Cập nhật: tháng 7 năm 2026.
