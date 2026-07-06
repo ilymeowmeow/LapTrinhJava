@@ -230,19 +230,49 @@ Kết quả benchmark và báo cáo thực nghiệm được lưu trong `evaluat
 `reports/` (nếu đã được sinh). Tài liệu phân tích, thiết kế và báo cáo nhóm được
 đặt trong `docs/`.
 
-## Cấu trúc dự án
+## Cấu Trúc Dự Án
 
-```text
+```
 LapTrinhJava/
-├── backend/              # Spring Boot REST API, RAG và persistence
-├── frontend/             # Next.js web app
-├── finetuning/           # Dataset, train script, LoRA adapter, local API
-├── evaluation/           # Test set và kết quả đánh giá
-├── scripts/              # Benchmark/utility scripts
-├── reports/              # Báo cáo thực nghiệm
-├── docs/                 # Tài liệu phân tích, thiết kế và báo cáo nhóm
-├── docker-compose.yml    # PostgreSQL + PGVector
-└── README.md
+├── backend/                      # Spring Boot Backend
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/chatbot/
+│   │   │   │       ├── controller/    # REST API Controllers
+│   │   │   │       ├── service/       # Business Logic
+│   │   │   │       ├── repository/    # Data Access Layer
+│   │   │   │       └── entity/        # Database Entities
+│   │   │   └── resources/
+│   │   │       └── application.yml    # Spring Boot Configuration
+│   │   └── test/                 # Unit & Integration Tests
+│   ├── pom.xml                   # Maven Dependencies
+│   └── mvnw / mvnw.cmd           # Maven Wrapper
+│
+├── frontend/                     # Next.js Frontend
+│   ├── src/
+│   │   ├── app/                  # Next.js App Router
+│   │   ├── components/           # React Components
+│   │   ├── lib/                  # Utility Functions
+│   │   └── styles/               # Tailwind CSS Styles
+│   ├── public/                   # Static Assets
+│   ├── package.json
+│   ├── next.config.ts
+│   └── tsconfig.json
+│
+├── finetuning/                   # Fine-Tuning Scripts & Data
+│   ├── dataset/                  # Training Datasets (JSON)
+│   └── scripts/                  # Python Scripts
+│
+├── scripts/                      # Utility Scripts
+│   └── test_gemini.py           # Test Gemini API Connection
+│
+├── docker-compose.yml            # Docker Compose Configuration
+├── .gitignore
+├── .cursorrules                  # AI Coding Rules
+├── README.md                     # Original README (Vietnamese)
+└── Phân tích và Thiết kế Hệ thống Chatbot AI.md  # Technical Design Document
+```
 ```
 
 Backend được tổ chức theo kiến trúc phân lớp:
